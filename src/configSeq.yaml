@@ -1,0 +1,22 @@
+configs:
+  - dataset: 'src/data/aps_failure/aps_failure_training_set.csv'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 1
+      weights: uniform
+    nanStrategy: median
+    balancingStrategy: smote
+    rescaler: normalize
+    covarianceThreshold: 0.95
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/aps_failure/aps_failure_training_set.csv'
+    classname: class
+    classifier: naiveBays
+    nanStrategy: median
+    balancingStrategy: smote
+    rescaler: normalize
+    covarianceThreshold: 0.95
+    clustering: False
+    patternMining: False
