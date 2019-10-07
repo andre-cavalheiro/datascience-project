@@ -29,6 +29,7 @@ class Puppet:
         if self.args['clustering']:
             pass
         else:
+            # Run classifier
             return self.evaluateClf(*self.trainClf(*self._treatment()))
 
     def _treatment(self):
@@ -41,12 +42,17 @@ class Puppet:
         df = pd.read_csv(self.args['dataset']) if self.args['nanStrategy'] == '' \
                 else pd.read_csv(datasetName + '_{}{}'.format(self.args['nanStrategy'], '.csv'))
         '''
+        if 'pd_speech_features' in self.args['dataset']:
+            df = pd.read_csv(self.args['dataset'], header=1,  sep=',', decimal='.')
+            fixFunction = fixDataSetSpeach
+        elif 'covtype' in self.args['dataset']:
+            df = pd.read_csv(self.args['dataset'], header=None, sep=',', decimal='.')
+            fixFunction = fixDataSetCov
 
-        df = pd.read_csv(self.args['dataset'], header=1,  sep=',', decimal='.')
         # Data treatment - We only require to run this once and save this in a new csv file to save time
 
         df = (df
-              .pipe(fixDataSet)
+              .pipe(fixFunction)
               .pipe(fillNan, strategy=self.args['nanStrategy']))
         print('Initial data frame ', df.shape)
 
@@ -57,9 +63,18 @@ class Puppet:
         y = df.loc[:, self.args['classname']]
         x = df.drop(columns=[self.args['classname']])
 
-        x = (x.
-             pipe(dropHighCorrFeat, max_corr=self.args['covarianceThreshold']).
-             pipe(self.args['rescaler']))   # normalize/standardize ....
+        if 'PCA' in self.args.keys() and self.args['PCA']:
+            numComponents = int(self.args['percComponentsPCA']*x.shape[1])
+            x = applyPCA(x, numComponents)
+
+            x = (x.
+                 pipe(self.args['rescaler']).   # normalize/standardize ....
+                 pipe(applyPCA, numComponents))
+
+        else:
+            x = (x.
+                 pipe(dropHighCorrFeat, max_corr=self.args['covarianceThreshold']).
+                 pipe(self.args['rescaler']))   # normalize/standardize ....
 
         print('Treatment done, final x state: {}'.format(x.shape))
 
@@ -74,7 +89,10 @@ class Puppet:
 
         print('Training with x: {}'.format(x.shape))
         print('Current x state: ', x.shape)
-        x_train, y_train = self.args['balancingStrategy'](x_train, y_train)
+
+        # todo - dont know if i can/should balance a dataset with class non binary
+        if 'pd_speech_features' in self.args['dataset']:
+            x_train, y_train = self.args['balancingStrategy'](x_train, y_train)
 
         # Training
         print('Fitting data...')
@@ -101,7 +119,10 @@ class Puppet:
         results.update(results2)
         printResultsToJson(results, self.outputDir)
 
-        return results2['cost']
+        cost = (results['sensitivity']+results['specificity'])/2
+
+        # Return what we'd like to minimize
+        return -cost
 
     def patternMining(self, df):
         # Mine por frequent patterns and find association rules

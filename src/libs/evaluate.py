@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score, precision_score, \
     confusion_matrix, log_loss, cohen_kappa_score
 from sklearn.model_selection import cross_val_score, learning_curve
 from os.path import join, exists, isfile
-
+import joblib
 
 def evaluate(classifier, x_train, y_train, x_test, y_test, y_predict):
 
@@ -53,19 +53,17 @@ def confMatrix(y_test, y_predict, dir):
     confusionMatrix = confusion_matrix(y_test, y_predict)
 
     # Calculate some parameters depending on TP, FP, FN, TN
-    cost = costFunction(confusionMatrix[0, 1], confusionMatrix[1, 0])       # Specific to the Aps dataset:
     sensitivity = confusionMatrix[0, 0]/(confusionMatrix[0, 0]+confusionMatrix[1, 0])
     specificity = confusionMatrix[1, 1]/(confusionMatrix[1, 1]+confusionMatrix[0, 1])
     recall = confusionMatrix[1, 1]/(confusionMatrix[1, 1]+confusionMatrix[1, 0])
     print('Sensitivity: %f' % sensitivity)
     print('Specificity: %f' % specificity)
-    print('Cost function: %f' % cost)
     print('recall ', recall)
 
     # fixme - find cleaner way to do this ?
     # Log results
-    attrs = ['cost', 'sensitivity', 'specificity']
-    values = [cost,  sensitivity, specificity]
+    attrs = ['sensitivity', 'specificity']
+    values = [sensitivity, specificity]
     logs = {attrs[it]: val for it, val in enumerate(values)}
 
     # Plot the confusion matrix
@@ -85,8 +83,6 @@ def confMatrix(y_test, y_predict, dir):
     return logs
 
 
-def costFunction(false_pos, false_neg):
-    return int(10*false_pos + 500*false_neg)
 
 
 def rocCurve(y_test, y_predict, dir):

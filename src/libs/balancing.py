@@ -8,7 +8,7 @@ import time
 def notBalancing(x, y):
     return x, y
 
-def smote(x, y, numMinorityIntances=False, label='class'):
+def smote(x, y, numMinorityIntances=False, label='class', falseLabel=False, trueLabel=True):
     print('- Balancing with SMOTE')
     print('Current x state: ', x.shape)
 
@@ -16,13 +16,13 @@ def smote(x, y, numMinorityIntances=False, label='class'):
     x_columns = x.columns.values
 
     counts = y.value_counts().to_dict()
-    print('Currently False - instances: [{}] True instances: [{}]'.format(counts[False], counts[True]))
+    print('Currently False - instances: [{}] True instances: [{}]'.format(counts[falseLabel], counts[trueLabel]))
 
     if numMinorityIntances:
         counts = y.value_counts().to_dict()
         ratio = {
             False: numMinorityIntances,
-            True: counts[True]
+            True: counts[trueLabel]
         }
         sm = SMOTE(random_state=420, sampling_strategy=ratio)
 
@@ -40,19 +40,19 @@ def smote(x, y, numMinorityIntances=False, label='class'):
     x_bal = df.drop(columns=[label])
 
     counts = y_bal.value_counts().to_dict()
-    print('Transformed to - False instances: [{}] True instances: [{}]'.format(counts[False], counts[True]))
+    print('Transformed to - False instances: [{}] True instances: [{}]'.format(counts[falseLabel], counts[trueLabel]))
     print('Transformed x state: ', x.shape)
 
     return x_bal, y_bal
 
 
-def randomUnderSample(x, y, numMajorityIntances=False, label='class'):
+def randomUnderSample(x, y, numMajorityIntances=False, label='class', falseLabel=False, trueLabel=True):
     print('- Balancing with random under sampling')
     print('Current x state: ', x.shape)
 
     x_columns = x.columns.values
     counts = y.value_counts().to_dict()
-    print('Currently False - instances: [{}] True instances: [{}]'.format(counts[False], counts[True]))
+    print('Currently False - instances: [{}] True instances: [{}]'.format(counts[falseLabel], counts[trueLabel]))
 
     if numMajorityIntances == False:
         rus = RandomUnderSampler(random_state=int(time.time()))
@@ -65,12 +65,17 @@ def randomUnderSample(x, y, numMajorityIntances=False, label='class'):
 
     x, y = rus.fit_resample(x, y)
 
-    counts = y.value_counts().to_dict()
-    print('Transformed to - False instances: [{}] True instances: [{}]'.format(counts[False], counts[True]))
-    print('Transformed x state: ', x.shape)
-
     x_bal = pd.DataFrame(x, columns=x_columns)
     y_bal = pd.DataFrame(y, columns=[label])
+
+    # fixme - done in a stupid way
+    df = x_bal.join(y_bal)
+    y_bal = df.loc[:, label]
+    x_bal = df.drop(columns=[label])
+
+    counts = y_bal.value_counts().to_dict()
+    print('Transformed to - False instances: [{}] True instances: [{}]'.format(counts[falseLabel], counts[trueLabel]))
+    print('Transformed x state: ', x.shape)
 
     return x_bal, y_bal
 
