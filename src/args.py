@@ -70,8 +70,8 @@ argListPuppet = [
         'optimize': False,
         'optimizeCategorical': [
             ('smote'),
-            ('notBalanced')
-            # ('randUndersample'),
+            ('notBalanced'),
+            ('randUndersample'),
             # ('clusterCentroidsUnderSample'),
         ]
 
@@ -82,8 +82,8 @@ argListPuppet = [
         'default': None,
         'help': 'Covariance threshold value to be used.',
         'required': True,
-        'optimize': True,
-        'optimizeUniform': [0.70, 0.99]
+        'optimize': False,
+        'optimizeUniform': [0.50, 0.99]
     },
 {
         'name': 'rescaler',
@@ -96,6 +96,15 @@ argListPuppet = [
             ('standardize', standardize),
             ('standardizeRobust', standardizeRobust)
         ],
+    },
+    {
+        'name': 'percComponentsPCA',
+        'type': int,
+        'default': None,
+        'help': 'Percentages of components to be used in the PCA process',
+        'required': True,
+        'optimize': True,
+        'optimizeUniform': [0.30, 0.99]
     },
 ]
 

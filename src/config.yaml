@@ -1,11 +1,14 @@
 dataset: 'src/data/pd_speech_features.csv'
+# dataset: 'src/data/covtype.data'
 classname: class
 # classname: consensus
 classifier: naiveBays
 nanStrategy: most_frequent
-balancingStrategy: smote
+balancingStrategy: notBalanced
 rescaler: normalize
 covarianceThreshold: 0.95
+PCA: True
+percComponentsPCA: 0.7
 patternMining: False
 miningParams:
   supportThreshold: 2
@@ -13,4 +16,3 @@ miningParams:
 clustering: False
 clusterParams:
   nclusters: 2
-variablesOfInterest:
