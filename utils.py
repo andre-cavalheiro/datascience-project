@@ -6,6 +6,7 @@ import random, string
 from pathlib import Path
 import json
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # Hack for non-default
 class NonDefaultVerifier(argparse.Action):
@@ -171,8 +172,9 @@ def removeNestedDict(d):
     return d
 
 
-def unifyOutpus(dir):
+def unifyOutputs(dir):
     datasetCols = {}
+    print(dir)
     for subdir, dirs, files in walk(dir):
         for subdir in dirs:
             # todo - Check name to avoid sequentials and optimizations
@@ -186,7 +188,9 @@ def unifyOutpus(dir):
             conf = removeNestedDict(conf)
 
             conf.update(outputs)
+
             newAddOns = []
+
             for key, val in conf.items():
                 if key in datasetCols.keys():
                     datasetCols[key].append(val)
@@ -196,5 +200,27 @@ def unifyOutpus(dir):
             for t in newAddOns:
                 datasetCols[t[0]] = [t[1]]
 
-    # print(datasetCols)
-    return pd.DataFrame(data=datasetCols)
+    unified_results = pd.DataFrame(data=datasetCols)
+    unified_results.to_csv("{}/output.csv".format(dir), sep='\t', encoding='utf-8')
+
+    return unified_results 
+
+
+def plot_output(file, y_types, x_type = None):
+    data = pd.read_csv(file,  sep='\t', encoding='utf-8')
+    fig, ax = plt.subplots()
+    
+    if x_type == None or x_type == "index":
+        x = [str(v) for v in data.index.values]
+    else:
+        data = data.sort_values(by=[x_type])
+        x = data[x_type]
+
+    print(data)
+    for t in y_types:
+        ax.plot(x, data[t], label=t)
+
+    ax.legend()
+    plt.show()
+
+plot_output("src/output/optimization/output.csv",["sensitivity","specificity"],  "covarianceThreshold")

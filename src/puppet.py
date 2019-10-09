@@ -75,6 +75,7 @@ class Puppet:
             x, dropedCols = dropHighCorrFeat(x, max_corr=self.args['covarianceThreshold'])
             x = self.args['rescaler'](x)    # normalize/standardize ....
 
+
         print('Treatment done, final x state: {}'.format(x.shape))
 
         df = x.join(y)
@@ -98,9 +99,9 @@ class Puppet:
         self.clf.fit(x_train, y_train)
         y_predict = self.clf.predict(x_test)
 
-        return x_train, y_train, x_test, y_test, y_predict
+        return x_train, y_train, x_test, y_test, y_predict, extraInfo
 
-    def evaluateClf(self, x_train, y_train, x_test, y_test, y_predict):
+    def evaluateClf(self, x_train, y_train, x_test, y_test, y_predict, extraInfo):
         print('--- Evaluation ---')
         # Calculate evaluation measures
         results = evaluate(self.clf, x_train, y_train, x_test, y_test, y_predict)
