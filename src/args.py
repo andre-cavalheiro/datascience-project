@@ -42,6 +42,9 @@ argListPuppet = [
         },
         {
             'name': 'weights',
+        },
+            {
+            'name': 'metric',
         }
         ]
     },
@@ -82,7 +85,7 @@ argListPuppet = [
         'default': None,
         'help': 'Covariance threshold value to be used.',
         'required': True,
-        'optimize': False,
+        'optimize': True,
         'optimizeUniform': [0.50, 0.99]
     },
 {
@@ -102,8 +105,8 @@ argListPuppet = [
         'type': int,
         'default': None,
         'help': 'Percentages of components to be used in the PCA process',
-        'required': True,
-        'optimize': True,
+        'required': False,
+        'optimize': False,
         'optimizeUniform': [0.30, 0.99]
     },
 ]

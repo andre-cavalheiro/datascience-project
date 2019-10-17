@@ -3,11 +3,15 @@ dataset: 'src/data/pd_speech_features.csv'
 classname: class
 # classname: consensus
 classifier: naiveBays
+classifierParams:
+  n_neighbors: 5
+  weights: 'uniform'    # or 'distance'
+  metric: 'euclidean'
 nanStrategy: most_frequent
 balancingStrategy: notBalanced
 rescaler: normalize
 covarianceThreshold: 0.95
-PCA: True
+PCA: False
 percComponentsPCA: 0.7
 patternMining: False
 miningParams:

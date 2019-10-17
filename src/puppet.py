@@ -7,7 +7,6 @@ from src.libs.treatment import *
 from src.libs.evaluate import *
 from src.args import *
 
-
 class Puppet:
     def __init__(self, args, debug, outputDir):
         """ I could pass everything from args to self right here to allow better interpretation
@@ -16,12 +15,14 @@ class Puppet:
         self.args = args
         self.debug = debug
         self.outputDir = outputDir
-        if 'classifierParams' in self.args.keys() and self.args['classifierParams'] is not None:
-            self.clf = self.args['classifier'](**self.args['classifierParams'])
-        else:
-            self.clf = self.args['classifier']()
+        if not self.args['plotOutput']:
+            if 'classifierParams' in self.args.keys() and self.args['classifierParams'] is not None:
+                self.clf = self.args['classifier'](**self.args['classifierParams'])
+            else:
+                self.clf = self.args['classifier']()
 
     def pipeline(self):
+
         if self.args['patternMining']:
             df, _, _, _ = self._treatment()
             self.patternMining(df)      # Since no optimization is needed no return is necessary
@@ -31,6 +32,7 @@ class Puppet:
         else:
             # Run classifier
             return self.evaluateClf(*self.trainClf(*self._treatment()))
+
 
     def _treatment(self):
 
@@ -80,7 +82,7 @@ class Puppet:
 
         df = x.join(y)
 
-        return df, x, y, {dropedCols: dropedCols}
+        return df, x, y, {'dropedCols': dropedCols}
 
     def trainClf(self, df, x, y, extraInfo):
 

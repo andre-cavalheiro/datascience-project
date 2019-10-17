@@ -1,31 +1,81 @@
 configs:
-  - # dataset: 'src/data/pd_speech_features.csv'
-    dataset: 'src/data/covtype.data'
+  - dataset: 'src/data/pd_speech_features.csv'
+    # dataset: 'src/data/covtype.data'
     classname: class
-    classifier: naiveBays
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 5
+      weights: 'uniform'
+      metric: 'manhattan'
     nanStrategy: most_frequent
-    balancingStrategy: notBalanced
+    balancingStrategy: smote
     rescaler: normalize
     covarianceThreshold: 1
+    PCA: False
     clustering: False
     patternMining: False
-  - # dataset: 'src/data/pd_speech_features.csv'
-    dataset: 'src/data/covtype.data'
+    plotOutput: False
+  - dataset: 'src/data/pd_speech_features.csv'
+    # dataset: 'src/data/covtype.data'
     classname: class
-    classifier: naiveBays
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 10
+      weights: 'uniform'
+      metric: 'manhattan'    # manhattan
     nanStrategy: most_frequent
-    balancingStrategy: notBalanced
+    balancingStrategy: smote
     rescaler: normalize
-    covarianceThreshold: .9
+    covarianceThreshold: 1
+    PCA: False
     clustering: False
     patternMining: False
-  - # dataset: 'src/data/pd_speech_features.csv'
-    dataset: 'src/data/covtype.data'
+    plotOutput: False
+  - dataset: 'src/data/pd_speech_features.csv'
+    # dataset: 'src/data/covtype.data'
     classname: class
-    classifier: naiveBays
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 15
+      weights: 'uniform'
+      metric: 'manhattan'  #'manhattan'
     nanStrategy: most_frequent
-    balancingStrategy: notBalanced
+    balancingStrategy: smote
     rescaler: normalize
-    covarianceThreshold: .80
+    covarianceThreshold: 1
+    PCA: False
     clustering: False
     patternMining: False
+    plotOutput: False
+  - dataset: 'src/data/pd_speech_features.csv'
+    # dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 50
+      weights: 'uniform'
+      metric: 'manhattan'  #'manhattan'
+    nanStrategy: most_frequent
+    balancingStrategy: smote
+    rescaler: normalize
+    covarianceThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+    plotOutput: False
+  - dataset: 'src/data/pd_speech_features.csv'
+    # dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 100
+      weights: 'uniform'
+      metric: 'manhattan'  #'manhattan'
+    nanStrategy: most_frequent
+    balancingStrategy: smote
+    rescaler: normalize
+    covarianceThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+    plotOutput: False

@@ -6,7 +6,7 @@ import seaborn as sns
 def correlation_matrix(data, name, file = None, annotTreshold = 20):
 	annot = False if len(data.columns) > 20 else True
 
-	fig = plt.figure(figsize=[15, 15])
+	fig = plt.figure(figsize=[25, 25])
 	corr_mtx = data.corr()
 	sns.heatmap(corr_mtx, xticklabels=corr_mtx.columns, yticklabels=corr_mtx.columns, annot=annot, cmap='Blues')
 	plt.title('Correlation analysis of {}'.format(name))
@@ -39,13 +39,13 @@ def sparsity(data, file = None):
 
 
 
-data = pd.read_csv("../data/data/proj/pd_speech_features.csv", header=[0,1])
+data = pd.read_csv("../data/pd_speech_features.csv", header=[0,1])
 
 visited = []
 for column in data:
 	if column[0] not in visited:
 		print(column[0])
-		correlation_matrix(data[column[0]],column[0], "../output/lab2/{}.jpg".format(column[0])) 
+		correlation_matrix(data[column[0]],column[0], "../output/{}.jpg".format(column[0]))
 		visited.append(column[0])
 
 

@@ -87,10 +87,21 @@ if 'optimizer' in jconfig.keys() and 'optimize' in jconfig.keys() and jconfig['o
     results = study.trials_dataframe()
     results.to_csv(join(optimizationDir, 'optimizationTrials.csv'))
 
+    # test me
+    if jconfig['plot']:
+        unifyOutputs(optimizationDir)
+        plotDemStats(optimizationDir, jconfig['plotParams']['x'],
+                     jconfig['plotParams']['ys'])
     changeDirName(optimizationDir, extraText=jconfig['successString'])
 
 # Import puppet configuration and run single/sequential tests
 else:
+    # Plot results instead of running tests
+
+    if jconfig['plot']:
+        plotDemStatsOnAHigherLevel(join(jconfig['outputDir'], jconfig['plotParams']['higherDir']), jconfig['plotParams']['x'],
+                     jconfig['plotParams']['ys'], jconfig['plotParams']['yLabels'])
+        exit()
     if jconfig['seq']:
         # Sequential test:
         
@@ -129,6 +140,11 @@ else:
             dumpConfiguration(pconfig, dir, unfoldConfigWith=argListPuppet)
             changeDirName(dir, extraText=jconfig['successString'])
 
+        # test me
+        if jconfig['plot']:
+            unifyOutputs(seqTestDir)
+            plotDemStats(seqTestDir, jconfig['plotParams']['x'],
+                         jconfig['plotParams']['ys'])
         changeDirName(seqTestDir, extraText=jconfig['successString'])
 
     else:

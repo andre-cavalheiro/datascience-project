@@ -7,6 +7,8 @@ from pathlib import Path
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import colors as mcolors
+
 
 # Hack for non-default
 class NonDefaultVerifier(argparse.Action):
@@ -178,8 +180,8 @@ def unifyOutputs(dir):
     for subdir, dirs, files in walk(dir):
         for subdir in dirs:
             # todo - Check name to avoid sequentials and optimizations
-            subpathToOutput = join(join(dir,subdir), 'logs.json')
-            subpathToConf = join(join(dir,subdir), 'config.yaml')
+            subpathToOutput = join(dir, subdir, 'logs.json')
+            subpathToConf = join(dir, subdir, 'config.yaml')
 
             with open(subpathToOutput) as f:
                 outputs = json.load(f)
@@ -206,8 +208,15 @@ def unifyOutputs(dir):
     return unified_results 
 
 
-def plot_output(file, y_types, x_type = None):
-    data = pd.read_csv(file,  sep='\t', encoding='utf-8')
+
+def multipleYsLinePlot(data, y_types, x_type, outputName='', ymin=True, ymax=True):
+    '''
+    :param data:    (pd.Dataframe) Data out of output.csv
+    :param y_types: (array) Headers to be used from output.csv
+    :param x_type:  (str) Single header to be used as x, from output.csv
+    :return:
+    '''
+
     fig, ax = plt.subplots()
     
     if x_type == None or x_type == "index":
@@ -219,8 +228,86 @@ def plot_output(file, y_types, x_type = None):
     print(data)
     for t in y_types:
         ax.plot(x, data[t], label=t)
+    ax.legend()
+    if ymin:
+        ax.set_ylim(bottom=0)
+    if ymax:
+        ax.set_ylim(top=1)
+    plt.savefig(outputName)
+
+def plotDemStats(dir, xHeader, yHeaders):
+    outputName = xHeader + ' by ['
+    for n in yHeaders:
+        outputName += '{}, '.format(n)
+    outputName = outputName + ']'
+    outputName = join(dir, outputName)
+
+    csvLocation = join(dir, 'output.csv')
+    data = pd.read_csv(csvLocation, sep='\t', index_col=False, encoding='utf-8')
+    multipleYsLinePlot(data, yHeaders, xHeader, outputName=outputName)
+
+def plotDemStatsOnAHigherLevel(dir, xHeader, yHeaders, yLabels, dpi=180):
+    colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
+    reds = ['lightcoral', 'indianred', 'darkred', 'r']
+    blues = ['deepskyblue', 'darkcyan', 'lightskyblue', 'steelblue']
+    greens = ['g', 'limegreen', 'forestgreen', 'mediumseagrean']
+    pallets = [reds, blues, greens]
+
+    outputName = xHeader + ' by ['
+    for n in yHeaders:
+        outputName += '{}, '.format(n)
+    outputName = outputName + ']'
+    outputName = join(dir, outputName)
+
+    results = []
+    maxNum = 0
+    for subdir, dirs, files in walk(dir):
+        for f in dirs:
+            outFile = join(subdir, f, 'output.csv')
+            data = pd.read_csv(outFile, sep='\t', index_col=False, encoding='utf-8')
+            results.append(data)
+        break  # Only apply recursivness once
+    fig, ax = plt.subplots()
+    for i, res in enumerate(results):
+        for j, y in enumerate(yHeaders):
+            data = res.sort_values(by=[xHeader])
+            x = data[xHeader]
+            maxNum = max(data[y]) if max(data[y]) > maxNum else maxNum
+            ax.plot(x, data[y], label=yLabels[i] + ' - {}'.format(y), color=colors[pallets[i][j]],
+                    alpha=0.6)
+
 
     ax.legend()
-    plt.show()
+    ax.set_ylim(bottom=0)
+    ax.set_ylim(top=maxNum + 0.1)
+    plt.savefig(outputName, dpi=dpi)
 
-plot_output("src/output/optimization/output.csv",["sensitivity","specificity"],  "covarianceThreshold")
+'''
+def plot_multiple_output(files, y_types, x_type=None, evalMetric='', savePath=''):
+    # y_types ['Chebyshev', 'Euclidean', 'Manhattan'],
+    # x_type 'n_neighbors',
+    # evalMetric ='accuracy'
+
+    metricResults = []
+    for f in files:
+        data = pd.read_csv(f, sep='\t', encoding='utf-8')
+        metricResults.append(data)
+
+    fig, ax = plt.subplots()
+    x=[]
+    for i, res in enumerate(metricResults):
+        data = res.sort_values(by=[x_type])
+        x = data[x_type]
+        ax.plot(x, data[evalMetric], label=y_types[i])
+
+    plt.xlabel(x_type)
+    plt.ylabel(evalMetric)
+
+    ax.legend()
+    # plt.show()
+    plt.savefig(evalMetric)
+
+
+unifyOutputs('src\output\optimization - not Balanced outputing droped cols - finished')
+plot_output("src/output/optimization - not Balanced outputing droped cols - finished/output.csv",["sensitivity","specificity"],  "covarianceThreshold")
+'''
