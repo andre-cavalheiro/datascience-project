@@ -1,18 +1,20 @@
+# Main params
 dataset: 'src/data/pd_speech_features.csv'
 # dataset: 'src/data/covtype.data'
 classname: class
-# classname: consensus
-classifier: naiveBays
+classifier: KNN
 classifierParams:
   n_neighbors: 5
-  weights: 'uniform'    # or 'distance'
+  weights: 'uniform'      # or 'distance'
   metric: 'euclidean'
+# Preparation
 nanStrategy: most_frequent
 balancingStrategy: notBalanced
 rescaler: normalize
 covarianceThreshold: 0.95
 PCA: False
 percComponentsPCA: 0.7
+# Functionality
 patternMining: False
 miningParams:
   supportThreshold: 2

@@ -1,17 +1,13 @@
 name: experimentations
 optimize: False       # Turns optimizer mode on and off
-seq: False            # Turns sequential mode on and off
-plot: False
+seq: True            # Turns sequential mode on and off
+plot: ['seq']            # Plot modes to activate: single, seq, seqOnly
 conf: src/config.yaml
 confSeq: src/configSeq.yaml
+confPlot: plotConfig.yaml
 outputDir: src\output
 debug: False
 optimizer:
   numTrials: 30
   numJobs: 1
-plotParams:
-  higherDir: 'lab 3\knn without threshold notBalanced'        # [ONLY FOR HIGHER PLOTS] In addition to output
-  x: n_neighbors      # covarianceThreshold
-  ys: ['sensitivity', 'specificity']
-  yLabels: ['chebyshev', 'euclidean', 'manhattan']    # fixme - careful with the order of directories
 successString: ' - finished'

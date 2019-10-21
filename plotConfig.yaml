@@ -1,0 +1,26 @@
+seqLogConversion: 'yaml,json-Csv'
+dpi: 500
+x: ['n_neighbors',]
+ys: [['sensitivity', 'specificity']]
+logFile: output.csv
+
+plotSingleParams:
+  type: ['line']
+  level: 'localCSV'
+  yAxes: ['Sensitivity', 'Specificity']
+
+plotSeqParams:
+  level: 'localCSV'
+  type: ['line']
+  yAxes: ['Sensitivity', 'Specificity']
+  ymax: 1
+  ymin: 0
+
+plotOnlyParams:
+  dir: 'lab 3\knn without threshold notBalanced'
+  type: ['lineHigher']
+  level: 'fetchCSV'
+  yLabels: ['chebyshev', 'euclidean', 'manhattan']  # fixme - careful with the order of directories
+  ymax: 1
+  ymin: 0
+  pallets: True

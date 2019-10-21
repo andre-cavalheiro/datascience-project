@@ -1,8 +1,11 @@
 from sys import exit
-from utils import *
+from libs.utils import *
+from libs.dir import *
+from libs.standardPlots import *
 from src.puppet import Puppet
 from src.args import argListPuppet
 from argsConf.jarvisArgs import argListJarvis
+from argsConf.plotArgs import argListPlots
 from os.path import join
 import optuna
 
@@ -42,6 +45,10 @@ if 'name' not in jconfig.keys() or ('name' in jconfig.keys() and jconfig['name']
     jconfig['name'] = randomName(7)
 
 printDict(jconfig, statement="> JARVIS using args:")
+
+# Import plot args:
+if 'confPlot' in jconfig.keys():
+    plotConfig = getConfiguration(jconfig['confPlot'])
 
 if 'optimizer' in jconfig.keys() and 'optimize' in jconfig.keys() and jconfig['optimize']:
 
@@ -87,21 +94,18 @@ if 'optimizer' in jconfig.keys() and 'optimize' in jconfig.keys() and jconfig['o
     results = study.trials_dataframe()
     results.to_csv(join(optimizationDir, 'optimizationTrials.csv'))
 
-    # test me
-    if jconfig['plot']:
-        unifyOutputs(optimizationDir)
-        plotDemStats(optimizationDir, jconfig['plotParams']['x'],
-                     jconfig['plotParams']['ys'])
-    changeDirName(optimizationDir, extraText=jconfig['successString'])
 
 # Import puppet configuration and run single/sequential tests
 else:
-    # Plot results instead of running tests
 
-    if jconfig['plot']:
-        plotDemStatsOnAHigherLevel(join(jconfig['outputDir'], jconfig['plotParams']['higherDir']), jconfig['plotParams']['x'],
-                     jconfig['plotParams']['ys'], jconfig['plotParams']['yLabels'])
+    if 'only' in jconfig['plot']:
+        # Instead of running puppet, simply make some plots
+
+        dir = join(jconfig['outputDir'], plotConfig['plotOnlyParams']['dir'])
+        c = makePlotConf(plotConfig, 'plotOnlyParams')
+        makePrettyPlots(jconfig['plot'], c, argListPlots, 'only', dir, unify=False)
         exit()
+
     if jconfig['seq']:
         # Sequential test:
         
@@ -138,13 +142,15 @@ else:
             puppet = Puppet(pconfig, debug=jconfig['debug'], outputDir=dir)
             puppet.pipeline()
             dumpConfiguration(pconfig, dir, unfoldConfigWith=argListPuppet)
+
+            c = makePlotConf(plotConfig, 'plotSingleParams')
+            makePrettyPlots(jconfig['plot'], c, argListPlots, 'single', dir, unify=False)
+
             changeDirName(dir, extraText=jconfig['successString'])
 
-        # test me
-        if jconfig['plot']:
-            unifyOutputs(seqTestDir)
-            plotDemStats(seqTestDir, jconfig['plotParams']['x'],
-                         jconfig['plotParams']['ys'])
+        c=makePlotConf(plotConfig, 'plotSeqParams')
+        makePrettyPlots(jconfig['plot'], c, argListPlots, 'seq', seqTestDir, unify=True,
+                        logFile='logs.json', configFile='config.yaml', unificationType=plotConfig['seqLogConversion'])
         changeDirName(seqTestDir, extraText=jconfig['successString'])
 
     else:
@@ -171,4 +177,10 @@ else:
         puppet = Puppet(args=pconfig, debug=jconfig['debug'], outputDir=dir)
         puppet.pipeline()
         dumpConfiguration(pconfig, dir, unfoldConfigWith=argListPuppet)
+
+        c=makePlotConf(plotConfig, 'plotSingleParams')
+        makePrettyPlots(jconfig['plot'], c, argListPlots, 'single', dir, unify=False)
+
         changeDirName(dir, extraText=jconfig['successString'])
+
+

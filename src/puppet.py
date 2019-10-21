@@ -15,23 +15,22 @@ class Puppet:
         self.args = args
         self.debug = debug
         self.outputDir = outputDir
-        if not self.args['plotOutput']:
-            if 'classifierParams' in self.args.keys() and self.args['classifierParams'] is not None:
-                self.clf = self.args['classifier'](**self.args['classifierParams'])
-            else:
-                self.clf = self.args['classifier']()
+        if 'classifierParams' in self.args.keys() and self.args['classifierParams'] is not None:
+            self.clf = self.args['classifier'](**self.args['classifierParams'])
+        else:
+            self.clf = self.args['classifier']()
 
     def pipeline(self):
-
         if self.args['patternMining']:
             df, _, _, _ = self._treatment()
             self.patternMining(df)      # Since no optimization is needed no return is necessary
 
-        if self.args['clustering']:
+        elif self.args['clustering']:
             pass
         else:
             # Run classifier
             return self.evaluateClf(*self.trainClf(*self._treatment()))
+
 
 
     def _treatment(self):
