@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from src.libs.balancing import *
 from src.libs.treatment import *
 from src.libs.evaluate import *
+from src.libs.plot import *
 from src.args import *
 
 class Puppet:
@@ -115,6 +116,9 @@ class Puppet:
         results2 = confMatrix(y_test, y_predict, self.outputDir)
         # Plot confusion matrix
         rocCurve(y_test, y_predict, self.outputDir)
+
+        if self.args['classifier'].__name__ == 'DecisionTreeClassifier':
+            decision_tree_visualizer(self.clf, self.outputDir)
 
         # Output results
         results.update(extraInfo)

@@ -2,11 +2,7 @@
 dataset: 'src/data/pd_speech_features.csv'
 # dataset: 'src/data/covtype.data'
 classname: class
-classifier: KNN
-classifierParams:
-  n_neighbors: 5
-  weights: 'uniform'      # or 'distance'
-  metric: 'euclidean'
+classifier: decisionTree
 # Preparation
 nanStrategy: most_frequent
 balancingStrategy: notBalanced

@@ -1,7 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from pandas.plotting import register_matplotlib_converters
+from sklearn.tree import export_graphviz
 import seaborn as sns
+from subprocess import call
 
 def correlation_matrix(data, name, file = None, annotTreshold = 20):
 	annot = False if len(data.columns) > 20 else True
@@ -58,6 +60,20 @@ def sens_spec_scatter(inputF, file=None, name="Sensitivity and Sensitivity", sen
 		plt.show()
 	else:
 		plt.savefig(file)
+
+def decision_tree_visualizer(tree, dir, filename = "dtree", show = False):
+	dot_file = '{}/{}.dot'.format(dir, filename)
+	png_file = '{}/{}.png'.format(dir, filename)
+
+	dot_data = export_graphviz(tree, out_file=dot_file, filled=True, rounded=True, special_characters=True)  
+	call(['dot', '-Tpng', dot_file, '-o', png_file, '-Gdpi=600'])
+
+	if show:
+		plt.figure(figsize = (14, 18))
+		plt.imshow(plt.imread(png_file))
+		plt.axis('off')
+		plt.show()
+
 '''
 sens_spec_scatter("../output/balancing with naiveBays entire dataset/output.csv",\
 	file = "../output/balancing with naiveBays entire dataset/sens_spec_scatter.png", \
