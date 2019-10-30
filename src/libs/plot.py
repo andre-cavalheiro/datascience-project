@@ -18,7 +18,6 @@ def correlation_matrix(data, name, file = None, annotTreshold = 20):
 	else:
 		plt.savefig(file)
 
-
 def sparsity(data, file = None):
 	columns = data.select_dtypes(include='number').columns
 	rows, cols = len(columns)-1, len(columns)-1
@@ -38,7 +37,6 @@ def sparsity(data, file = None):
 		plt.show()
 	else:
 		plt.savefig(file)
-
 
 def sens_spec_scatter(inputF, file=None, name="Sensitivity and Sensitivity", sensLabel = 'sensitivity', \
 						specLabel = 'specificity', label = 'balancingStrategy'):

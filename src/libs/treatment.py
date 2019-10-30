@@ -135,3 +135,19 @@ def getTopCorrelations(df, n=None):
     	return sol[0:n]
     else:
     	return sol
+
+
+def dummify_discrete(df):
+    dummylist = []
+    for att in df:
+        dummylist.append(pd.get_dummies(df[[att]]))
+    dummi_df = pd.concat(dummylist, axis=1)
+    return dummi_df
+
+def dummify_real(df, n = 3, type = "cut"):
+    dummi_df = df.copy()
+    for col in dummi_df:
+        if col not in ['class','a01','a02']: 
+            dummi_df[col] = pd.cut(dummi_df[col],3,labels=[str(i) for i in range(n)])
+
+    return dummi_df

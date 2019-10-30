@@ -35,7 +35,6 @@ class Puppet:
 
 
     def _treatment(self):
-
         # Data load
 
         '''
@@ -131,11 +130,15 @@ class Puppet:
         return -cost
 
     def patternMining(self, df):
+        _new = SelectKBest(f_classif, k=10).fit_transform(X, y)
         # Mine por frequent patterns and find association rules
         # Fixme - a good question would be to ask how to calculate the amount of memory needed according to the dataset
+        
+        """
         dfInTuples = list(df.itertuples(index=False, name=None))
 
         patterns = find_frequent_patterns(dfInTuples, self.args['miningParams']['supportThreshold'])
         print(patterns)
         rules = generate_association_rules(patterns, self.args['miningParams']['supportConfidence'])
         print(rules)
+        """

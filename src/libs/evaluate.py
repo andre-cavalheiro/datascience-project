@@ -19,7 +19,7 @@ def evaluate(classifier, x_train, y_train, x_test, y_test, y_predict):
     accuracy = accuracy_score(y_test, y_predict)
     precision = precision_score(y_test, y_predict)
     recall = recall_score(y_test, y_predict)
-    f1 = f1_score(y_test, y_predict)
+    f1 = f1_score(y_test, y_predicts)
     kappa = cohen_kappa_score(y_test, y_predict)
 
     # Log results
