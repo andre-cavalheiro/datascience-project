@@ -11,7 +11,7 @@ covarianceThreshold: 0.95
 PCA: False
 percComponentsPCA: 0.7
 # Functionality
-patternMining: False
+patternMining: True
 miningParams:
   supportThreshold: 2
   supportConfidence: 0.8

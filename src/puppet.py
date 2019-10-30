@@ -1,6 +1,7 @@
 import pandas as pd
 from pyfpgrowth import find_frequent_patterns, generate_association_rules
 from sklearn.model_selection import train_test_split
+from sklearn.feature_selection import SelectKBest, f_classif
 
 from src.libs.balancing import *
 from src.libs.treatment import *
@@ -23,8 +24,8 @@ class Puppet:
 
     def pipeline(self):
         if self.args['patternMining']:
-            df, _, _, _ = self._treatment()
-            self.patternMining(df)      # Since no optimization is needed no return is necessary
+            df, x, y, _ = self._treatment()
+            self.patternMining(df,x, y)      # Since no optimization is needed no return is necessary
 
         elif self.args['clustering']:
             pass
@@ -129,12 +130,14 @@ class Puppet:
         # Return what we'd like to minimize
         return -cost
 
-    def patternMining(self, df):
-        _new = SelectKBest(f_classif, k=10).fit_transform(X, y)
+    def patternMining(self, df, x, y):
+        columns = SelectKBest(f_classif, k=10).fit(x, y).get_support()
+        new_x = x.loc[:,columns]
+        dummify(discretize(new_x))
+
         # Mine por frequent patterns and find association rules
         # Fixme - a good question would be to ask how to calculate the amount of memory needed according to the dataset
-        
-        """
+        """       
         dfInTuples = list(df.itertuples(index=False, name=None))
 
         patterns = find_frequent_patterns(dfInTuples, self.args['miningParams']['supportThreshold'])
