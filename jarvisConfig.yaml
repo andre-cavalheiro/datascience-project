@@ -1,11 +1,11 @@
-name: experimentations
+name: knn - randomUndersample - n_neighbors
 optimize: False       # Turns optimizer mode on and off
-seq: True            # Turns sequential mode on and off
-plot: ['seq']            # Plot modes to activate: single, seq, seqOnly
+seq: True             # Turns sequential mode on and off
+plot: ['seq']            # Plot modes to activate: single, seq, only
 conf: src/config.yaml
 confSeq: src/configSeq.yaml
 confPlot: plotConfig.yaml
-outputDir: src\output
+outputDir: src\output\
 debug: False
 optimizer:
   numTrials: 30

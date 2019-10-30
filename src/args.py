@@ -80,7 +80,7 @@ argListPuppet = [
 
     },
     {
-        'name': 'covarianceThreshold',
+        'name': 'correlationThreshold',
         'type': float,
         'default': None,
         'help': 'Covariance threshold value to be used.',

@@ -1,81 +1,346 @@
 configs:
-  - dataset: 'src/data/pd_speech_features.csv'
-    # dataset: 'src/data/covtype.data'
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 1
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 3
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
     classname: class
     classifier: KNN
     classifierParams:
       n_neighbors: 5
       weights: 'uniform'
-      metric: 'manhattan'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
     nanStrategy: most_frequent
-    balancingStrategy: smote
+    balancingStrategy: randUndersample
     rescaler: normalize
-    covarianceThreshold: 1
+    correlationThreshold: 1
     PCA: False
     clustering: False
     patternMining: False
-    plotOutput: False
-  - dataset: 'src/data/pd_speech_features.csv'
-    # dataset: 'src/data/covtype.data'
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 7
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
     classname: class
     classifier: KNN
     classifierParams:
       n_neighbors: 10
       weights: 'uniform'
-      metric: 'manhattan'    # manhattan
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
     nanStrategy: most_frequent
-    balancingStrategy: smote
+    balancingStrategy: randUndersample
     rescaler: normalize
-    covarianceThreshold: 1
+    correlationThreshold: 1
     PCA: False
     clustering: False
     patternMining: False
-    plotOutput: False
-  - dataset: 'src/data/pd_speech_features.csv'
-    # dataset: 'src/data/covtype.data'
+  - dataset: 'src/data/covtype.data'
     classname: class
     classifier: KNN
     classifierParams:
       n_neighbors: 15
       weights: 'uniform'
-      metric: 'manhattan'  #'manhattan'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
     nanStrategy: most_frequent
-    balancingStrategy: smote
+    balancingStrategy: randUndersample
     rescaler: normalize
-    covarianceThreshold: 1
+    correlationThreshold: 1
     PCA: False
     clustering: False
     patternMining: False
-    plotOutput: False
-  - dataset: 'src/data/pd_speech_features.csv'
-    # dataset: 'src/data/covtype.data'
+  - dataset: 'src/data/covtype.data'
     classname: class
     classifier: KNN
     classifierParams:
-      n_neighbors: 50
+      n_neighbors: 18
       weights: 'uniform'
-      metric: 'manhattan'  #'manhattan'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
     nanStrategy: most_frequent
-    balancingStrategy: smote
+    balancingStrategy: randUndersample
     rescaler: normalize
-    covarianceThreshold: 1
+    correlationThreshold: 1
     PCA: False
     clustering: False
     patternMining: False
-    plotOutput: False
-  - dataset: 'src/data/pd_speech_features.csv'
-    # dataset: 'src/data/covtype.data'
+  - dataset: 'src/data/covtype.data'
     classname: class
     classifier: KNN
     classifierParams:
-      n_neighbors: 100
+      n_neighbors: 23
       weights: 'uniform'
-      metric: 'manhattan'  #'manhattan'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
     nanStrategy: most_frequent
-    balancingStrategy: smote
+    balancingStrategy: randUndersample
     rescaler: normalize
-    covarianceThreshold: 1
+    correlationThreshold: 1
     PCA: False
     clustering: False
     patternMining: False
-    plotOutput: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 28
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 34
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 37
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 43
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 47
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 53
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 57
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 63
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 67
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 73
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 77
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 83
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 87
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 93
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False
+  - dataset: 'src/data/covtype.data'
+    classname: class
+    classifier: KNN
+    classifierParams:
+      n_neighbors: 97
+      weights: 'uniform'
+      metric: 'euclidean'
+    dataSplitMethod: 'split'
+    nanStrategy: most_frequent
+    balancingStrategy: randUndersample
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    clustering: False
+    patternMining: False

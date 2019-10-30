@@ -9,22 +9,23 @@ from sklearn.model_selection import cross_val_score, learning_curve
 from os.path import join, exists, isfile
 import joblib
 
-def evaluate(classifier, x_train, y_train, x_test, y_test, y_predict):
-
-
-    full_x = x_train.append(x_test, ignore_index=True)
-    full_y = y_train.append(y_test, ignore_index=True)
+def evaluate(classifier, x_train, y_train, x_test, y_test, y_predict, y_predict_train=None):
 
     # Calculate
     accuracy = accuracy_score(y_test, y_predict)
-    precision = precision_score(y_test, y_predict)
-    recall = recall_score(y_test, y_predict)
-    f1 = f1_score(y_test, y_predict)
+    precision = precision_score(y_test, y_predict, average='micro')
+    recall = recall_score(y_test, y_predict, average='micro')
+    f1 = f1_score(y_test, y_predict, average='micro')
     kappa = cohen_kappa_score(y_test, y_predict)
 
-    # Log results
     attrs = ['accuracy', 'precision', 'recall', 'f1', 'kappa']
     values = [accuracy, precision, recall, f1, kappa]
+    if y_predict_train is not None:
+        accuracyTrain = accuracy_score(y_train, y_predict_train)
+        attrs.append('accuracyTrain')
+        values.append(accuracyTrain)
+
+    # Log results
     logs = {attrs[it]: val for it, val in enumerate(values)}
 
     # Print
@@ -87,7 +88,7 @@ def confMatrix(y_test, y_predict, dir):
 
 def rocCurve(y_test, y_predict, dir):
     # Roc score (area under the curve)
-    roc_auc_score_ = roc_auc_score(y_test, y_predict)
+    roc_auc_score_ = roc_auc_score(y_test, y_predict, )
     print('Roc auc score = ', roc_auc_score_)
 
     # Compute ROC curve and ROC area for each class

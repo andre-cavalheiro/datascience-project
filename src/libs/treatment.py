@@ -100,17 +100,26 @@ def dropHighCorrFeat(df, max_corr, n=None):
     print('Applying covariance threshold of {}, current x state {}'.format(max_corr, df.shape))
 
     topc = getTopCorrelations(df, n)
+
+    variableCorr = [{'x': item[0][0], 'y': item[0][1], 'corr': item[1]} for item in topc.iteritems()]
+    variableFrequencies = {}
+
+    for v in variableCorr:
+        if v['corr'] > max_corr:
+            if v['x'] in variableFrequencies.keys():
+                variableFrequencies[v['x']]+=1
+            else:
+                variableFrequencies[v['x']]=1
+            if v['y'] in variableFrequencies.keys():
+                variableFrequencies[v['y']]+=1
+            else:
+                variableFrequencies[v['y']]=1
     layers2drop = list()
-    layers2keep = list()
-
-    for item in topc.iteritems():
-        col1 = item[0][0]
-        col2 = item[0][1]
-        corr_val = item[1]
-        if corr_val > max_corr and col2 not in layers2keep and col1 not in layers2drop and col2 not in layers2drop:
-            layers2drop.append(col2)
-            layers2keep.append(col1)
-
+    for v in variableCorr:
+        if v['corr'] > max_corr:
+            toDrop = v['x'] if variableFrequencies[v['x']] > variableFrequencies[v['y']] else v['y']
+            if toDrop not in layers2drop:
+                layers2drop.append(toDrop)
 
     df = df.drop(layers2drop, axis=1)
 
@@ -128,9 +137,10 @@ def getTopCorrelations(df, n=None):
                    n - the number of top instances to return
     Returns:      a Series with the 'n' most correlated labels
     '''
-    corr_matrix = df.corr().abs()
-    sol = (corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
-                 .stack()).sort_values(ascending=False)
+    corr_matrix = df.corr(method='spearman').abs()
+    uperCorrMatrix = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
+    sol = (uperCorrMatrix.stack())\
+                .sort_values(ascending=False)
     if n:
     	return sol[0:n]
     else:

@@ -1,13 +1,12 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from pandas.plotting import register_matplotlib_converters
 import seaborn as sns
 
 def correlation_matrix(data, name, file = None, annotTreshold = 20):
 	annot = False if len(data.columns) > 20 else True
 
 	fig = plt.figure(figsize=[25, 25])
-	corr_mtx = data.corr()
+	corr_mtx = data.corr(method='spearman')
 	sns.heatmap(corr_mtx, xticklabels=corr_mtx.columns, yticklabels=corr_mtx.columns, annot=annot, cmap='Blues')
 	plt.title('Correlation analysis of {}'.format(name))
 	

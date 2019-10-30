@@ -1,9 +1,10 @@
 import pandas as pd
 from pyfpgrowth import find_frequent_patterns, generate_association_rules
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, KFold
 
 from src.libs.balancing import *
 from src.libs.treatment import *
+from src.libs.plot import *
 from src.libs.evaluate import *
 from src.args import *
 
@@ -29,9 +30,52 @@ class Puppet:
             pass
         else:
             # Run classifier
-            return self.evaluateClf(*self.trainClf(*self._treatment()))
+            df, x, y, extraInfo = self._treatment()
 
+            if self.args['dataSplitMethod'] == 'split':
+                print('Splitting dataset into train/test')
+                x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=420)
 
+                print('Training with x: {}'.format(x.shape))
+                print('Current x state: ', x.shape)
+                
+                r = self.evaluateClf(*self.trainClf(df, x_train, x_test, y_train, y_test, extraInfo))
+                printResultsToJson(r, self.outputDir)
+                
+                cost = (r['sensitivity'] + r['specificity']) / 2
+
+            elif self.args['dataSplitMethod'] == 'kfold':
+                if 'kFold' in self.args.keys():
+                    print('Splitting dataset into k folds')
+                    kf = KFold(n_splits=self.args['kFold'])
+                    results = {}
+                    for train_index, test_index in kf.split(x):
+                        # print("TRAIN:", train_index, "TEST:", test_index)
+                        x_train, x_test = x.iloc[train_index], x.iloc[test_index]
+                        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+
+                        x_train, y_train, x_test, y_test, y_predict, extraInfo, y_predict_train = \
+                            self.trainClf(df, x_train, x_test, y_train, y_test, extraInfo)
+
+                        r = self.evaluateClf(x_train, y_train, x_test, y_test, y_predict, extraInfo, y_predict_train)
+
+                        for key, val in r.items():
+                            if key in results.keys():
+                                results[key].append(val)
+                            else:
+                                results[key] = [val]
+
+                    averagedResults = {}
+                    for key, vals in results.items():
+                        if(isinstance(vals[0], int) or isinstance(vals[0], float)):
+                            averagedResults[key] = sum(vals)/len(vals)
+
+                    printResultsToJson(averagedResults, self.outputDir)
+                    cost = (r['sensitivity'] + r['specificity']) / 2
+                else:
+                    print('kfold param required for kfold split method')
+                    exit()
+        return cost
 
     def _treatment(self):
 
@@ -60,10 +104,11 @@ class Puppet:
         if self.debug:
             print('USING ONLY 10% OF THE DATA')
             df = df.iloc[:int(df.shape[0]*0.10), :]
-
+        
         y = df.loc[:, self.args['classname']]
         x = df.drop(columns=[self.args['classname']])
 
+        dropedCols = None
         if 'PCA' in self.args.keys() and self.args['PCA']:
             numComponents = int(self.args['percComponentsPCA']*x.shape[1])
             x = applyPCA(x, numComponents)
@@ -73,39 +118,41 @@ class Puppet:
                  pipe(applyPCA, numComponents))
 
         else:
-            x, dropedCols = dropHighCorrFeat(x, max_corr=self.args['covarianceThreshold'])
+            if self.args['correlationThreshold'] != 1:
+                x, dropedCols = dropHighCorrFeat(x, max_corr=self.args['correlationThreshold'])
             x = self.args['rescaler'](x)    # normalize/standardize ....
 
 
         print('Treatment done, final x state: {}'.format(x.shape))
 
-        df = x.join(y)
-
-        return df, x, y, {'dropedCols': dropedCols}
-
-    def trainClf(self, df, x, y, extraInfo):
-
-        print('Splitting dataset into train/test')
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=420)
-
-        print('Training with x: {}'.format(x.shape))
-        print('Current x state: ', x.shape)
+        # n = 'correlation threshold: {}'.format(self.args<['correlationThreshold'])
+        # correlation_matrix(x, n, join(self.outputDir, 'Correlation Mattrix.png'), annotTreshold=20)
 
         # todo - dont know if i can/should balance a dataset with class non binary
         if 'pd_speech_features' in self.args['dataset']:
-            x_train, y_train = self.args['balancingStrategy'](x_train, y_train)
+            x, y = self.args['balancingStrategy'](x, y)
+
+        df = x.join(y)
+
+        extraInfo = {'dropedCols': dropedCols} if dropedCols is not None else {}
+        return df, x, y, extraInfo
+
+    def trainClf(self, df, x_train, x_test, y_train, y_test, extraInfo):
 
         # Training
         print('Fitting data...')
         self.clf.fit(x_train, y_train)
+
         y_predict = self.clf.predict(x_test)
+        y_predict_train = self.clf.predict(x_train)
 
-        return x_train, y_train, x_test, y_test, y_predict, extraInfo
+        return x_train, y_train, x_test, y_test, y_predict, extraInfo, y_predict_train
 
-    def evaluateClf(self, x_train, y_train, x_test, y_test, y_predict, extraInfo):
+    def evaluateClf(self, x_train, y_train, x_test, y_test, y_predict, extraInfo, y_predict_train):
         print('--- Evaluation ---')
         # Calculate evaluation measures
-        results = evaluate(self.clf, x_train, y_train, x_test, y_test, y_predict)
+        results = evaluate(self.clf, x_train, y_train, x_test, y_test, y_predict, y_predict_train)
+
 
         if 'saveModel' in self.args.keys() and self.args['saveModel']:
             saveModel(self.clf, self.outputDir)
@@ -113,18 +160,18 @@ class Puppet:
         print('-- Plotting --')
         # Plot Roc curve
         results2 = confMatrix(y_test, y_predict, self.outputDir)
-        # Plot confusion matrix
-        rocCurve(y_test, y_predict, self.outputDir)
+
+        if self.args['dataset'] != 'src/data/covtype.data':
+            # Plot confusion matrix
+            rocCurve(y_test, y_predict, self.outputDir)
 
         # Output results
         results.update(extraInfo)
         results.update(results2)
-        printResultsToJson(results, self.outputDir)
 
-        cost = (results['sensitivity']+results['specificity'])/2
 
         # Return what we'd like to minimize
-        return -cost
+        return results
 
     def patternMining(self, df):
         # Mine por frequent patterns and find association rules

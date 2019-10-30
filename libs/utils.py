@@ -176,6 +176,7 @@ def unifyJsonYamlOutputsIntoCSV(dir, logFile='logs.json', configFile='config.yam
                 if logType == 'json':
                     outputs = json.load(f)
                 elif logType == 'csv':
+                    print('not implemented format csv')
                     pass
                 else:
                     print('Unknown format {}'.format(logType))
@@ -185,10 +186,11 @@ def unifyJsonYamlOutputsIntoCSV(dir, logFile='logs.json', configFile='config.yam
             newAddOns = []
 
             for key, val in conf.items():
-                if key in datasetCols.keys():
-                    datasetCols[key].append(val)
-                else:
-                    newAddOns.append((key, val))
+                if key != 'dropedCols':  # fixme
+                    if key in datasetCols.keys():
+                        datasetCols[key].append(val)
+                    else:
+                        newAddOns.append((key, val))
 
             for t in newAddOns:
                 datasetCols[t[0]] = [t[1]]
