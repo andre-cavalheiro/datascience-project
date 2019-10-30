@@ -1,0 +1,16 @@
+Full dataset
+KNN (uniform, eucleudian):
+Balancing by n_neighbors:
+	Sensitivy > specificity.
+	Balencear o dataset parece baixar a sensitivy, (espeialmente no SMOTE), mas nao varia muito o specifcitivity.   
+Variar o numero de neighbors nao varia muito a specificity. Na sensitivity, o not balanced apartir k~=25 fica constante no 1, o smote no k~=20 no 0.5 (descend logariticamente). Not balanced varia bastante sendo o valor medio ~0.6
+
+Decision Trees:
+Balancing by depth:
+	Smote calramente melhor, apartir de um certo depth estabiliza no melhor resultado
+	Diferenças na depth varia a sensitivity no NOT BALANCED. Enquanto que diferenças na depth varia a specificity no SMOTE.
+Melhor: SMOTE com depth = 9, 17, 6
+
+Naïve Bayes:
+	Smote claramente pior
+	Nenhum é particularmente bom
