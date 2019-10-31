@@ -4,7 +4,6 @@ from IPython.display import display, HTML
 from sklearn.preprocessing import LabelBinarizer #for dummification
 from mlxtend.frequent_patterns import apriori, association_rules #for ARM
 from sklearn.feature_selection import SelectKBest, f_classif
-from treatment import discretize, dummify
 
 
 #datapath = '../data/data/proj/pd_speech_features.csv'
