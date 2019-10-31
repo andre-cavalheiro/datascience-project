@@ -4,10 +4,41 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from sklearn.metrics import accuracy_score, precision_score, \
     recall_score, f1_score, roc_auc_score, roc_curve, auc, \
-    confusion_matrix, log_loss, cohen_kappa_score
+    confusion_matrix, log_loss, cohen_kappa_score, \
+    silhouette_score, adjusted_rand_score, \
+    adjusted_mutual_info_score, mutual_info_score, \
+    normalized_mutual_info_score, homogeneity_score, \
+    completeness_score, v_measure_score
 from sklearn.model_selection import cross_val_score, learning_curve
 from os.path import join, exists, isfile
 import joblib
+
+def cluster_metrics(x, y, y_pred):
+    #print("Sum of squared distances:",kmeans_model.inertia_)
+    #External
+    #teoricas
+    ad_rand = adjusted_rand_score(y, y_pred)
+    #labs
+    adjusted_mutual_info = adjusted_mutual_info_score(y, y_pred)
+    mutual_info = mutual_info_score(y, y_pred)
+    normalized_mutual_info = normalized_mutual_info_score(y, y_pred)
+    homogeneity = homogeneity_score(y, y_pred)  
+    completeness= completeness_score(y, y_pred) 
+    v_measure = v_measure_score(y, y_pred)
+
+    #Internal
+    silhouette = silhouette_score(x, y_pred)
+
+    #metrics.cluster.contingency_matrix(x, y)
+    attrs = ['ad_rand_score', 'adjusted_mutual_info_score', 'mutual_info_score', 'normalized_mutual_info_score', 
+    'homogeneity_score', 'completeness_score', 'v_measure_score', 'silhouette']
+
+    values = [ad_rand, adjusted_mutual_info, mutual_info, 
+    normalized_mutual_info, homogeneity, completeness, v_measure, silhouette]
+
+    logs = {attrs[it]: val for it, val in enumerate(values)}
+    print(logs)
+    return logs
 
 def evaluate(classifier, x_train, y_train, x_test, y_test, y_predict):
 
@@ -19,7 +50,7 @@ def evaluate(classifier, x_train, y_train, x_test, y_test, y_predict):
     accuracy = accuracy_score(y_test, y_predict)
     precision = precision_score(y_test, y_predict)
     recall = recall_score(y_test, y_predict)
-    f1 = f1_score(y_test, y_predicts)
+    f1 = f1_score(y_test, y_predict)
     kappa = cohen_kappa_score(y_test, y_predict)
 
     # Log results
