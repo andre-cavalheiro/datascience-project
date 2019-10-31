@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import SelectKBest, f_classif
 
 from src.libs.balancing import *
+from src.libs.pattern_mining import *
 from src.libs.treatment import *
 from src.libs.evaluate import *
 from src.libs.plot import *
@@ -28,7 +29,8 @@ class Puppet:
             self.patternMining(df,x, y)      # Since no optimization is needed no return is necessary
 
         elif self.args['clustering']:
-            pass
+            pass    
+
         else:
             # Run classifier
             return self.evaluateClf(*self.trainClf(*self._treatment()))
@@ -133,7 +135,7 @@ class Puppet:
     def patternMining(self, df, x, y):
         columns = SelectKBest(f_classif, k=10).fit(x, y).get_support()
         new_x = x.loc[:,columns]
-        dummify(discretize(new_x))
+        get_association_rules(get_frequent_itemsets(dummify(discretize(new_x))))
 
         # Mine por frequent patterns and find association rules
         # Fixme - a good question would be to ask how to calculate the amount of memory needed according to the dataset

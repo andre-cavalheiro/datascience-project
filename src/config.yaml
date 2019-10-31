@@ -15,6 +15,7 @@ patternMining: True
 miningParams:
   supportThreshold: 2
   supportConfidence: 0.8
+clusterFunction: kmeans 
 clustering: False
 clusterParams:
   nclusters: 2

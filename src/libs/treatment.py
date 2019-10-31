@@ -148,5 +148,5 @@ def discretize(df, n = 3, type = "cut"):
     new_df = df.copy()
     func = pd.cut if type == "cut" else pd.qcut 
     for col in new_df:
-        new_df[col] = pd.cut(new_df[col], n, labels=[str(i) for i in range(n)])
+        new_df[col] = func(new_df[col], n, labels=[str(i) for i in range(n)])
     return new_df

@@ -6,10 +6,10 @@ from mlxtend.frequent_patterns import apriori, association_rules #for ARM
 from sklearn.feature_selection import SelectKBest, f_classif
 
 
-datapath = '../data/data/proj/pd_speech_features.csv'
-speechdata = pd.read_csv(datapath, header=1 )
-df = speechdata 
-print(df.head())
+#datapath = '../data/data/proj/pd_speech_features.csv'
+#speechdata = pd.read_csv(datapath, header=1 )
+#df = speechdata 
+#print(df.head())
 
 
 #Discretize real-valued attributes: width (pd.cut)
@@ -52,7 +52,7 @@ def dummify(newdf):
 def get_frequent_itemsets(dummified_df):
     minsup = 0.35 #you can also use iteratively decreasing support as in the previous example
     frequent_itemsets = apriori(dummified_df, min_support=minsup, use_colnames=True)
-    print
+    print(frequent_itemsets)
     return frequent_itemsets
 
 def get_association_rules(frequent_itemsets):
@@ -62,10 +62,10 @@ def get_association_rules(frequent_itemsets):
     print(rules[(rules['antecedent_len']>=2)])
     return rules
 
-def patternMining(df, x, y):
-        columns = SelectKBest(f_classif, k=10).fit(x, y).get_support()
-        new_x = x.loc[:,columns]
-        dummify(discretize(new_x))
+"""
+columns = SelectKBest(f_classif, k=10).fit(x, y).get_support()
+new_x = x.loc[:,columns]
+dummify(discretize(new_x))
 
 #dw = discretize_width(df)
 #dummies = dummify(dw)
@@ -73,3 +73,4 @@ def patternMining(df, x, y):
 #get_association_rules(freqs)
 
 patternMining(df)
+"""
