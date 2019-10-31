@@ -137,16 +137,24 @@ def getTopCorrelations(df, n=None):
     	return sol
 
 
+#TODO auto discover non-real cols
+def discretize(df, n = 3, type = "cut"):
+    new_df = df.copy()
+    non_real_cols = []
+    cut_func = pd.cut if type == "cut" else pd.qcut 
+    for col in new_df:
+        if col not in non_real_cols:
+            new_df[col] = cut_func(new_df[col], n, labels=[str(i) for i in range(n)])
+    return new_df
+
+
+#TODO auto discover binary cols
 def dummify(df):
     dummylist = []
+    binary_cols = []
     for att in df:
+        if att in binary_cols:
+            df[att] = df[att].astype('category')
         dummylist.append(pd.get_dummies(df[[att]]))
     dummi_df = pd.concat(dummylist, axis=1)
     return dummi_df
-
-def discretize(df, n = 3, type = "cut"):
-    new_df = df.copy()
-    func = pd.cut if type == "cut" else pd.qcut 
-    for col in new_df:
-        new_df[col] = func(new_df[col], n, labels=[str(i) for i in range(n)])
-    return new_df
