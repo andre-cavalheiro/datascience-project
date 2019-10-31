@@ -133,11 +133,25 @@ class Puppet:
         return -cost
 
     def patternMining(self, df, x, y):
+        min_sup = 0.35 if self.args['miningParams']["min_support"] == None else self.args['miningParams']["min_support"] 
+        min_conf = 0.7 if self.args['miningParams']["min_confidence"] == None else self.args['miningParams']["min_confidence"] 
+        min_lift = 1.2 if self.args['miningParams']["min_lift"] == None else self.args['miningParams']["min_lift"] 
+        iteratively_decreasing_support = True if self.args['miningParams']["iteratively_decreasing_support"] == None else self.args['miningParams']["iteratively_decreasing_support"] 
+        minpatterns = 30
+        pattern_metric = "lift" if self.args['miningParams']["pattern_metric"] == None else self.args['miningParams']["pattern_metric"]
+        # add defaults above to args.py
+        # make flow here based on args (quick stuff)
         columns = SelectKBest(f_classif, k=10).fit(x, y).get_support()
         new_x = x.loc[:,columns]
-        get_association_rules(get_frequent_itemsets(dummify(discretize(new_x))))
-
-        # Mine por frequent patterns and find association rules
+        patterns = get_frequent_itemsets(dummify(discretize(new_x)), minsup = min_sup, iteratively_decreasing_support = False, minpatterns = 30)
+        assoc_rules = get_association_rules(freqs, metric=pattern_metric)
+        
+        #lab 6:
+        #interesting_rules[(rules['antecedent_len']>=3 and rules['confidence'] >=0.9)][0:10]
+        #for r in interesting_rules:
+        #   print(f"confidence: {confidence} support: {support} lift: {lift})
+        
+        
         # Fixme - a good question would be to ask how to calculate the amount of memory needed according to the dataset
         """       
         dfInTuples = list(df.itertuples(index=False, name=None))
