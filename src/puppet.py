@@ -18,10 +18,15 @@ class Puppet:
         self.args = args
         self.debug = debug
         self.outputDir = outputDir
-        if 'classifierParams' in self.args.keys() and self.args['classifierParams'] is not None:
-            self.clf = self.args['classifier'](**self.args['classifierParams'])
+
+    #TODO: add this to JARVIS
+    def linkFunctionToArgs(self, funcName, argName):
+        if argName in self.args.keys() and self.args[argName] is not None:
+            new_func = self.args[funcName](**self.args[argName])
         else:
-            self.clf = self.args['classifier']()
+            new_func = self.args[funcName]()
+
+        return new_func        
 
     def pipeline(self):
         if self.args['patternMining']:
@@ -29,12 +34,26 @@ class Puppet:
             self.patternMining(df,x, y)      # Since no optimization is needed no return is necessary
 
         elif self.args['clustering']:
-            pass    
-
+            self.cluster_method = self.linkFunctionToArgs('clusterFunction','clusterParams')
+            self.evaluate_clustering(*self.do_clustering(*self._treatment()))
         else:
+            self.clf = self.linkFunctionToArgs('classifier','classifierParams')
             # Run classifier
             return self.evaluateClf(*self.trainClf(*self._treatment()))
 
+    def do_clustering(self, df, x, y, extraInfo):
+        print('--- Clustering ---')
+
+        self.cluster_method.fit(x)
+        y_pred = self.cluster_method.labels_
+
+        return x, y, y_pred, extraInfo
+
+    def evaluate_clustering(self, x, y, y_pred, extraInfo):
+        print('--- Clustering Evaluation ---')
+        results = cluster_metrics(x, y, y_pred)
+
+        printResultsToJson(results, self.outputDir)
 
 
     def _treatment(self):

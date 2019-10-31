@@ -1,4 +1,4 @@
-name: test - decision trees
+name: test - cluster trees
 optimize: False       # Turns optimizer mode on and off
 seq: False            # Turns sequential mode on and off
 plot: ['seq']            # Plot modes to activate: single, seq, seqOnly
