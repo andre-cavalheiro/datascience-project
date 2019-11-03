@@ -14,6 +14,7 @@ def correlation_matrix(data, name, file = None, annotTreshold = 20):
 		plt.show()
 	else:
 		plt.savefig(file)
+	plt.close(fig=fig)
 
 
 def sparsity(data, file = None):
@@ -35,67 +36,5 @@ def sparsity(data, file = None):
 		plt.show()
 	else:
 		plt.savefig(file)
+	plt.close(fig=fig)
 
-
-def sens_spec_scatter(inputF, file=None, name="Sensitivity and Sensitivity", sensLabel = 'sensitivity', \
-						specLabel = 'specificity', label = 'balancingStrategy'):
-	data = pd.read_csv(inputF,  sep='\t', encoding='utf-8')
-	fig, ax = plt.subplots()
-
-	data = pd.read_csv("../data/pd_speech_features.csv", header=[0,1])
-	plt.xlabel('Sensitivity')
-	plt.ylabel('Specificity')
-
-	for index, row in data.iterrows():
-		ax.scatter(row[sensLabel], row[specLabel], label=row[label], edgecolors='none')
-
-	plt.title('Sensitivity and specificity of {}'.format(name))
-	ax.legend()
-	ax.grid(True)
-
-	if(file == None):
-		plt.show()
-	else:
-		plt.savefig(file)
-'''
-sens_spec_scatter("../output/balancing with naiveBays entire dataset/output.csv",\
-	file = "../output/balancing with naiveBays entire dataset/sens_spec_scatter.png", \
-	name = "Naive Bays with entire dataset")
-sens_spec_scatter("../output/balancing with nB entire dataset corr=.80/output.csv",\
-	file = "../output/balancing with nB entire dataset corr=.80/sens_spec_scatter.png", \
-	name = "Naive Bays with correlation threshold of .80")
-'''
-
-"""
-data = pd.read_csv("../data/data/proj/pd_speech_features.csv", header=[0,1])
->>>>>>> 316d49e58509757c7568e15e59b1fa3765d178c8
-
-visited = []
-for column in data:
-	if column[0] not in visited:
-		print(column[0])
-		correlation_matrix(data[column[0]],column[0], "../output/{}.jpg".format(column[0]))
-		visited.append(column[0])
-
-
-print(data.head())
-curr_col_name = "Special Features"
-curr_df = data.iloc[:, [0]]
-features_dict = []
-
-
-for column in data:
-	if "Unnamed" in column:
-		curr_df = pd.concat([curr_df, data[column]], axis=1, join='inner')
-	else:
-		new_header = curr_df.iloc[0] 
-		curr_df = curr_df[1:] 
-		curr_df.columns = new_header  
-
-		features_dict.append((column, curr_df))
-		curr_df = data[column]
-
-
-for f in features_dict[1:]:
-	correlation_matrix(f[1],f[0],"{}.jpg".format(f[0])) 
-"""

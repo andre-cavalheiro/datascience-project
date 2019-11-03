@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 from matplotlib import colors as mcolors
 import networkx as nx
 import numpy as np
-from math import sqrt
+from math import sqrt, log10
 from matplotlib.font_manager import FontProperties
+import ast
 
 colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
 reds = ['lightcoral', 'indianred', 'darkred', 'r', 'lightsalmon']
@@ -15,47 +16,97 @@ greens = ['g', 'limegreen', 'forestgreen', 'mediumseagrean', 'palegreen']
 greys = ['dimgrey', 'darkgrey', 'lightgrey', 'slategrey', 'silver']
 pinks = ['magenta', 'violet', 'purple', 'hotpink', 'pink']
 colorPallets = [reds, blues, greens, greys, pinks]
+colorPalletsBox = ['#2C7BB6', '#D7191C', 'grey', 'orange']
 
-"""
-# Only supports logfile CSV
-def plotDemStats(dir, x, ys, logFile, yAxes=[], ymin=None, ymax=None, dpi=180):
-    outputName = x + ' by ['
-    for n in ys:
-        outputName += '{}, '.format(n)
-    outputName = outputName + ']'
-    outputName = join(dir, outputName)
 
-    csvLocation = join(dir, logFile)
-    data = pd.read_csv(csvLocation, sep='\t', index_col=0, encoding='utf-8')
-    '''fig, ax = plt.subplots()
-    multipleYsLinePlot(ax, data, ys, x, colors=[], dpi=180)
+def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=None, yAxesBox='', dpi=180):
+
+    yLabels = yLabelsBox
+    yAxes = yAxesBox
+    data = fetchData(dir, level, logFile)
+
+    fig, ax = plt.subplots()
+
+    for i, res in enumerate(data):
+        for j, y in enumerate(ys):
+            resSorted = res.sort_values(by=[x])
+            xSorted = resSorted[x]  # Varied values (exp. n_neighbors)
+            ySorted = resSorted[y]  # List of values correspondent correspondent to the fixed one
+            ySorted = [ast.literal_eval(ySorted.values[j]) for j in range(len(ySorted))]     # convert string to list ( each one with several kfold values)
+
+            max = xSorted.max()
+            numDataPoints = len(xSorted)
+            boxesPerDataPoint = len(data)
+            distBetweenDataPoints = max/numDataPoints
+            deltaValue = distBetweenDataPoints/boxesPerDataPoint
+            width = deltaValue/3
+
+            if len(data) == 1:
+                delta = [0]
+            if len(data) == 2:
+                delta = [-deltaValue, deltaValue]
+            elif len(data) == 3:
+                delta = [-deltaValue, 0, deltaValue]
+
+            # Move plots to the sides
+            dislocatedX = [z+delta[i] for z in xSorted] if delta else xSorted
+
+            # Create plot
+            # width = 1     # 0.1
+            bpl = plt.boxplot(ySorted, positions=dislocatedX, sym='', widths=width)
+            set_box_color(bpl, colorPalletsBox[i])
+
+    # Associate label and color
+    for i, lab in enumerate(yLabels):
+        plt.plot([], c=colorPalletsBox[i], label=lab)
+    plt.legend()
+
     plt.xlabel(x)
     if yAxes:
         plt.ylabel(yAxes)
-    if ymin:
-        ax.set_ylim(bottom=0)
-    if ymax:
+
+    # X axis:
+    xAxis = [str(j) for j in xSorted]
+    plt.xticks(xSorted, xAxis)
+
+    # Increase x minimum to catch a bit more on the left
+    xmin = xSorted[0]-np.diff(xSorted)[0]
+    ax.set_xlim(left=xmin)
+
+    if ymin is not None:
+        ax.set_ylim(bottom=ymin)
+    if ymax is not None:
         ax.set_ylim(top=ymax + ymax * 0.1)
     ax.legend()
-    plt.savefig(outputName + '.png', dpi=dpi)'''
-    makeImage([data], ys, x, outputName, yAxes, ymin, ymax, dpi)
-"""
+
+    plt.tight_layout()
+    outputName = buildOutputName(x, ys, dir)
+    plt.savefig(outputName + ' - box.png', dpi=dpi)
+    plt.close(fig=fig)
 
 # Only supports logfile CSV
-def plotDemStats(level, dir, x, ys, logFile, yLabels=[], yAxes='', ymin=None, ymax=None, pallets=False, dpi=180,
+def plotDemStats(level, dir, x, ys, logFile, yLabelsLine=[], yAxes='', ymin=None, ymax=None, pallets=False, dpi=180,
                  joinYToLabel=None):
 
-
+    yLabels = yLabelsLine
     data = fetchData(dir, level, logFile)
 
     fig, ax = plt.subplots()
 
     # labelsToUse = yLabels if len(yLabels) == len(data) else ['' for i in data]
     for i, res in enumerate(data):
-        if pallets:
-            multipleYsLinePlot(ax, res, ys, x, colors=colorPallets[i], labels=yLabels[i], joinYToLabel=joinYToLabel)
+        if len(yLabels) == len(data):
+            # takes priority
+            labels = [yLabels[i] for k in ys]
+        elif len(yLabels[i]) == len(ys):
+            labels = yLabels[i]
         else:
-            multipleYsLinePlot(ax, res, ys, x, labels=yLabels[i], joinYToLabel=joinYToLabel)
+            labels = ['' for y in yLabels]
+
+        if pallets:
+            multipleYsLinePlot(ax, res, ys, x, colors=colorPallets[i], labels=labels, joinYToLabel=joinYToLabel)
+        else:
+            multipleYsLinePlot(ax, res, ys, x, labels=labels, joinYToLabel=joinYToLabel)
 
     plt.xlabel(x)
     if yAxes:
@@ -67,6 +118,7 @@ def plotDemStats(level, dir, x, ys, logFile, yLabels=[], yAxes='', ymin=None, ym
     ax.legend()
     outputName = buildOutputName(x, ys, dir)
     plt.savefig(outputName + ' - linePlot.png', dpi=dpi)
+    plt.close(fig=fig)
 
 
 def multipleYsLinePlot(ax, data, y_types, x_type, colors=[], labels=[], joinYToLabel=None):
@@ -84,7 +136,7 @@ def multipleYsLinePlot(ax, data, y_types, x_type, colors=[], labels=[], joinYToL
         x = data[x_type]
 
     maxNum = 0
-    labelsToUse = labels if len(labels) == len(y_types) else [labels[0] for y in y_types]   # fixme - labels[0]
+    labelsToUse = labels if len(labels) == len(y_types) else ['' for y in y_types]   # fixme - labels[0]
     for i, y in enumerate(y_types):
         l = labelsToUse[i] + ' - {}'.format(y) if joinYToLabel else labelsToUse[i]
         if colors:
@@ -94,8 +146,9 @@ def multipleYsLinePlot(ax, data, y_types, x_type, colors=[], labels=[], joinYToL
         maxNum = max(data[y]) if max(data[y]) > maxNum else maxNum
 
 
-def scaterThemPlotsNx(level, dir, x, ys, logFile, dpi, yLabels=None, ymin=None, ymax=None, annotations=False, distanceToLabel=None):
+def scaterThemPlotsNx(level, dir, x, ys, logFile, dpi, yLabelsScatter=None, ymin=None, ymax=None, annotations=False, distanceToLabel=None):
 
+    yLabels = yLabelsScatter
     data = fetchData(dir, level, logFile)
 
     fig, ax = plt.subplots()
@@ -111,7 +164,7 @@ def scaterThemPlotsNx(level, dir, x, ys, logFile, dpi, yLabels=None, ymin=None, 
 
         x_ = resSorted[ys[0]]
         y_ = resSorted[ys[1]]
-        ax.scatter(x_, y_, label=yLabels[i][0])
+        ax.scatter(x_, y_, label=yLabels[i])
         dists = []
         for x__, y__ in zip(x_, y_):
             d = distance((x__, y__), (0, 0))
@@ -159,8 +212,6 @@ def scaterThemPlotsNx(level, dir, x, ys, logFile, dpi, yLabels=None, ymin=None, 
                                     color=color,
                                     connectionstyle="arc3"))
 
-    all_pos = np.vstack(pos.values())
-
     plt.xlabel(ys[0])
     plt.ylabel(ys[1])
 
@@ -173,13 +224,17 @@ def scaterThemPlotsNx(level, dir, x, ys, logFile, dpi, yLabels=None, ymin=None, 
 
     outputName = buildOutputName(x, ys, dir)
     plt.savefig(outputName + ' - scatterNx.png', dpi=dpi)
+    plt.close(fig=fig)
 
 
-def scaterThemPlots(level, dir, x, ys, logFile, dpi, yLabels, ymin=None, ymax=None, annotations=False):
 
+def scaterThemPlots(level, dir, x, ys, logFile, dpi, yLabelsScatter, ymin=None, ymax=None, annotations=False):
+
+    yLabels = yLabelsScatter
     data = fetchData(dir, level, logFile)
 
     fig, ax = plt.subplots()
+
 
     for i, res in enumerate(data):
         if annotations:
@@ -187,14 +242,15 @@ def scaterThemPlots(level, dir, x, ys, logFile, dpi, yLabels, ymin=None, ymax=No
             resSorted = res.sort_values(by=[x])
             xVal = resSorted[x]
 
-            ax.scatter(resSorted[ys[0]], resSorted[ys[1]], label=yLabels[i][0])
+            ax.scatter(resSorted[ys[0]], resSorted[ys[1]], label=yLabels[i])
         else:
             ax.scatter(res[ys[0]], res[ys[1]], label=yLabels[i][0])
 
+        '''
         if annotations:
             for i, txt in enumerate(xVal):
                 ax.annotate(txt, (resSorted[ys[0]][i], resSorted[ys[1]][i]))
-
+        '''
     plt.xlabel(ys[0])
     plt.ylabel(ys[1])
 
@@ -209,6 +265,8 @@ def scaterThemPlots(level, dir, x, ys, logFile, dpi, yLabels, ymin=None, ymax=No
 
     outputName = buildOutputName(x, ys, dir)
     plt.savefig(outputName + ' - scatter.png', dpi=dpi)
+    plt.close(fig=fig)
+
 
 
 def fetchData(dir, level, logFile):
@@ -243,5 +301,13 @@ def buildOutputName(x, ys, dir):
     outputName = join(dir, outputName)
     return outputName
 
+
 def distance(p0, p1):
     return sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
+
+
+def set_box_color(bp, color):
+    plt.setp(bp['boxes'], color=color)
+    plt.setp(bp['whiskers'], color=color)
+    plt.setp(bp['caps'], color=color)
+    plt.setp(bp['medians'], color=color)

@@ -6,13 +6,13 @@ from pathlib import Path
 import json
 import pandas as pd
 import yaml
+import copy
 
 # Import yaml
 def getConfiguration(configFile):
     with open(configFile, 'r') as stream:
         params = yaml.safe_load(stream)
     return params
-
 
 # Dump yaml
 def dumpConfiguration(configDict, direcotry, unfoldConfigWith=None):
@@ -55,6 +55,7 @@ def printDict(dict, statement=None):
 
 
 def selectFuncAccordingToParams(config, argList):
+    config = copy.deepcopy(config)
     for a in argList:
         if 'possibilities' in a.keys() and len(a['possibilities']) is not 0:
             for p in a['possibilities']:
@@ -113,50 +114,53 @@ def getTrialValues(trial, arg):
 
 
 # Evaluate if situation demands for a plot, and if so apply the ones that are in order.
-def makePrettyPlots(enabledModes, config, argListPlots, mode, dir, unify=False, logFile='logs.json',
+def makePrettyPlots(config, dir, possibilities, unify=False, logFile='logs.json',
                     configFile='config.yaml', unificationType=''):
 
-    if mode == 'single':
-        modeType = 'singlePlotTypes'
-    elif mode == 'seq':
-        modeType = 'seqPlotTypes'
-    elif mode == 'only':
-        modeType = 'onlyPlotTypes'
 
-    # Check if plot mode is enabled
-    if mode in enabledModes:
-        # Some plots require the unification of outputs.
-        if unify:
-            if unificationType == 'yaml,json-Csv':
-                unifyJsonYamlOutputsIntoCSV(dir, logFile=logFile, configFile=configFile)
-            else:
-                print('Unkown unification type {}'.format(unificationType))
-                exit()
+    # Some plots require the unification of outputs.
+    unifyOutputs(unify, unificationType, logFile, configFile, dir)
 
-        # Get plot possibilities for selected mode
-        g = (e for e in argListPlots if e.get('name') == modeType)
-        plotTypes = next(g)
+    # IMPORTANT:
+    # IMPORTANT:
+    # IMPORTANT:
+    assert (len(config['x']) == len(config['ys']))
+    assert(len(config['x']) == len(config['type']))
 
-        assert (len(config['x']) == len(config['ys']))
-        numPlots = len(config['x'])
+    types, funcs, args = [], [], []
+    for p in possibilities:
+        types.append(p[0])
+        funcs.append(p[1])
+        args.append(p[2])
 
-        # For every plot possibility check which are selected for this specific mode
-        for p in plotTypes['possibilities']:
-            type = p[0]
-            func = p[1]
-            args = p[2]
-            if type in config['type']:
-                # Build common params between iterations and remove them from the other ones
-                sharedParams = {a[0]: config[a[0]] for a in args if a[1] == 'shared' if a[0] in config.keys()}
-                toDeleteInd = [i for i, a in enumerate(args) if a[0] in sharedParams.keys()]
-                for index in sorted(toDeleteInd, reverse=True):
-                    del args[index]
+    # For every enabled mode make the plot
+    for t, type in enumerate(config['type']):
+        typeId = types.index(type)
 
-                # Plot
-                for j in range(numPlots):
-                    # Build iteration specific params
-                    params = {n[0]: config[n[0]][j] for n in args if n[0] in config.keys()}
-                    func(x=config['x'][j], ys=config['ys'][j], dpi=config['dpi'], level=config['level'], **params, **sharedParams, dir=dir)
+        xSpecificType=config['x'][t]
+        ysSpecificType=config['ys'][t]
+
+        # Build common params between iterations and remove them from the other ones
+        sharedParams = {a[0]: config[a[0]] for a in args[typeId] if a[1] == 'shared' if a[0] in config.keys()}
+        toDeleteInd = [i for i, a in enumerate(args[typeId]) if a[0] in sharedParams.keys()]
+        for index in sorted(toDeleteInd, reverse=True):
+            del args[typeId][index]
+
+        # Plot
+        for j in range(len(xSpecificType)):
+            # Build iteration specific params
+            params = {n[0]: config[n[0]][j] for n in args[typeId] if n[0] in config.keys()}
+            funcs[typeId](x=xSpecificType[j], ys=ysSpecificType[j], dpi=config['dpi'], level=config['level'],
+                          dir=dir, **params, **sharedParams)
+
+
+def unifyOutputs(unify, unificationType, logFile, configFile, dir):
+    if unify:
+        if unificationType == 'yaml,json-Csv':
+            unifyJsonYamlOutputsIntoCSV(dir, logFile=logFile, configFile=configFile)
+        else:
+            print('Unkown unification type {}'.format(unificationType))
+            exit()
 
 # Unify several config.yamls and and logs.json into a single output.csv for the overall sequential running
 def unifyJsonYamlOutputsIntoCSV(dir, logFile='logs.json', configFile='config.yaml'):
@@ -214,11 +218,42 @@ def removeNestedDict(d):
     return d
 
 
-def makePlotConf(plotConfig, paramType):
+def makePlotConf(plotConfig, paramType, pconfig):
     a = plotConfig.copy()
     b = plotConfig[paramType]
     del a['plotSingleParams']
     del a['plotSeqParams']
     del a['plotOnlyParams']
     a.update(b)
+    a['x'] = [[pconfig['plotX']for k in y] for y in a['ys']]
     return a
+
+def recursiveThingy(pipeline, configs, argListPuppet, iterator=0):
+    pconfigs= []
+
+    if len(pipeline)-1 == iterator:
+        p = pipeline[0]
+        for var in p['values']:
+            if 'subName' in p.keys():
+                configs[p['name']][p['subName']] = var
+            else:
+                configs[p['name']] = var
+
+            pconfig = selectFuncAccordingToParams(configs, argListPuppet)
+            pconfigs.append(pconfig)
+
+        return pconfigs
+
+    for i in range(iterator, len(pipeline)):
+        p = pipeline[i]
+        for var in p['values']:
+            c = configs.copy()
+            if 'subName' in p.keys():
+                c[p['name']][p['subName']] = var
+            else:
+                c[p['name']] = var
+
+            pconfig = recursiveThingy(pipeline[i+1:], c, argListPuppet, iterator)
+            pconfigs += pconfig
+
+    return pconfigs

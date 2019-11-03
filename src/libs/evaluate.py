@@ -9,7 +9,7 @@ from sklearn.model_selection import cross_val_score, learning_curve
 from os.path import join, exists, isfile
 import joblib
 
-def evaluate(classifier, x_train, y_train, x_test, y_test, y_predict, y_predict_train=None):
+def evaluate(classifier, x_train, y_train, x_test, y_test, y_predict, y_predict_train=None, iterator=None):
 
     # Calculate
     accuracy = accuracy_score(y_test, y_predict)
@@ -49,7 +49,7 @@ def loadModel(model, dir):
     return model
 
 
-def confMatrix(y_test, y_predict, dir):
+def confMatrix(y_test, y_predict, dir, iterator=None):
 
     confusionMatrix = confusion_matrix(y_test, y_predict)
 
@@ -79,14 +79,16 @@ def confMatrix(y_test, y_predict, dir):
     plt.ylabel('True label')
     plt.title('Confusion Matrix')
     # plt.show()
-    plt.savefig(join(dir, 'conf-mat.png'))
+    name = join(dir, 'conf-mat.png') if iterator==None else join(dir, 'conf-mat-{}.png'.format(iterator) )
+    plt.savefig(name)
     print('Plotted confusion matrix')
+    plt.close(fig=fig)
     return logs
 
 
 
 
-def rocCurve(y_test, y_predict, dir):
+def rocCurve(y_test, y_predict, dir, iterator=None):
     # Roc score (area under the curve)
     roc_auc_score_ = roc_auc_score(y_test, y_predict, )
     print('Roc auc score = ', roc_auc_score_)
@@ -96,7 +98,7 @@ def rocCurve(y_test, y_predict, dir):
     roc_auc = auc(fpr, tpr)  # Area under the roc curve
 
     # Plot of a ROC curve for a specific class
-    plt.figure()
+    fig = plt.figure()
     plt.plot(fpr, tpr, color='darkorange',
              label='ROC curve (area = %0.2f)' % roc_auc)
     plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
@@ -107,8 +109,11 @@ def rocCurve(y_test, y_predict, dir):
     plt.title('Roc curve')
     plt.legend(loc="lower right")
     # plt.show()
-    plt.savefig(join(dir, 'roc.png'))
+    name = join(dir, 'roc.png') if iterator==None else join(dir, 'roc-{}.png'.format(iterator))
+    plt.savefig(name)
     print('Plotted roc curve')
+    plt.close(fig=fig)
+
 
 
 def plot_learning_curve(estimator, X, y, dir, ylim=None, cv=None,
@@ -216,6 +221,8 @@ def plotParamVariationPretty(x, y1, y2, y3, label1='', label2='', label3='', xla
     print('----------------------------------------------------------------------------------------------------------')
     plt.legend()
     plt.savefig(path)
+    plt.close(fig=fig)
+
 
 
 def plotEvolutionaryPlots(x, y1, y2, y3=None, clf_family=None):

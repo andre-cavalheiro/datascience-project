@@ -8,6 +8,7 @@ from argsConf.jarvisArgs import argListJarvis
 from argsConf.plotArgs import argListPlots
 from os.path import join
 import optuna
+import copy
 
 # Verify command line arguments
 parser = argparse.ArgumentParser(description='[==< J A R V I S >==]')
@@ -100,58 +101,109 @@ else:
 
     if 'only' in jconfig['plot']:
         # Instead of running puppet, simply make some plots
-
-        dir = join(jconfig['outputDir'], plotConfig['plotOnlyParams']['dir'])
-        c = makePlotConf(plotConfig, 'plotOnlyParams')
-        makePrettyPlots(jconfig['plot'], c, argListPlots, 'only', dir, unify=False)
+        print('=================================')
+        print('===== Plot Priority Enabled =====')
+        print('=== jarvis config plot = only ===')
+        print('=================================')
+        auxSeqTestDir2 = join(jconfig['outputDir'], plotConfig['plotOnlyParams']['dir'])
+        currentPlotConf = makePlotConf(plotConfig, 'plotOnlyParams', {'plotX': plotConfig['x']})
+        # Get plot possibilities for selected mode
+        g = (e for e in argListPlots if e.get('name') == 'onlyPlotTypes')
+        plotTypes = next(g)
+        makePrettyPlots(currentPlotConf, auxSeqTestDir2, plotTypes['possibilities'], unify=False)
         exit()
 
     if jconfig['seq']:
-        # Sequential test:
-        
-        configs = getConfiguration(jconfig['confSeq'])['configs']
+
         if 'confSeq' not in jconfig.keys():
             print('> Missing configuration file for sequential testing - exiting')
             exit()
 
-        pconfigs = []
-        
-        # Process each configuration process it and verify its validity
-        for it, conf in enumerate(configs):
-            pconfig = selectFuncAccordingToParams(conf, argListPuppet)
-            pconfigs.append(pconfig)
+        configs = getConfiguration(jconfig['confSeq'])['configs']
+        origDir = getWorkDir(jconfig, 'seq - {}'.format(jconfig['name']),
+                                completedText=jconfig['successString'])
 
-            for arg in argListPuppet:
-                if arg['name'] not in pconfig.keys() and arg['required']:
-                    print('> Missing required argument "{}" in testrun with index "{}" '.format(arg['name'], it))
-                    print('> !!! Ignoring testrun index - {} !!!'.format(it))
-                    pconfigs.pop()
-                    break
+        for seqConf in configs:
+            pconfigs = []
 
-        # Create Directory for outputs
-        seqTestDir = getWorkDir(jconfig, 'sequential - {}'.format(jconfig['name']), completedText=jconfig['successString'])
+            name = seqConf['name']
+            variations = seqConf['variations']
+            variationsWithin = seqConf['variationsWithin']
+            del seqConf['variations']
+            del seqConf['variationsWithin']
 
-        print("==========        RUNNING TEST RUN - [{}]     ==========".format(jconfig['name']))
-        # Run instances
-        for pconfig in pconfigs:
-            print("=== NEW INSTANCE ==  ")
-            printDict(pconfig, statement="> Using args:")
-            # Create output directory for instance inside sequential-test directory
-            dir = makeDir(seqTestDir, 'testrun', completedText=jconfig['successString'])
+            variationNames = [v['name'] for v in variations]
+            variationValues = {v['name']: v['values'] for v in variations}
+            variationWithinNames = [v['subName'] for v in variationsWithin]
+            variationWithinValues = {v['subName']: (v['name'], v['values'],) for v in variationsWithin}
 
-            puppet = Puppet(pconfig, debug=jconfig['debug'], outputDir=dir)
-            puppet.pipeline()
-            dumpConfiguration(pconfig, dir, unfoldConfigWith=argListPuppet)
+            pipeline = []
 
-            c = makePlotConf(plotConfig, 'plotSingleParams')
-            makePrettyPlots(jconfig['plot'], c, argListPlots, 'single', dir, unify=False)
+            for p in seqConf['priorityLine']:
+                if p in variationNames:
+                    pipeline.append({'name': p, 'values': variationValues[p]})
+                elif p in variationWithinNames:
+                    pipeline.append({'name': variationWithinValues[p][0], 'subName': p,
+                                     'values': variationWithinValues[p][1]})
 
-            changeDirName(dir, extraText=jconfig['successString'])
+            pconfigs = recursiveThingy(pipeline, seqConf, argListPuppet)
 
-        c=makePlotConf(plotConfig, 'plotSeqParams')
-        makePrettyPlots(jconfig['plot'], c, argListPlots, 'seq', seqTestDir, unify=True,
-                        logFile='logs.json', configFile='config.yaml', unificationType=plotConfig['seqLogConversion'])
-        changeDirName(seqTestDir, extraText=jconfig['successString'])
+            print("==========        RUNNING TEST RUN - [{}]     ==========".format(jconfig['name']))
+            # Create Directory for outputs
+            seqTestDir = getWorkDir({'outputDir': origDir}, name, completedText=jconfig['successString'])
+
+            # Todo - this should be recursive too!! right now it only allows 2 parameters to be varied
+            assert(len(pipeline) == 2)    # just for now
+            pipelineValues = [t['values'] for t in pipeline]
+
+            it=0
+            for var1 in pipelineValues[0]:
+                auxSeqTestDir = getWorkDir({'outputDir': seqTestDir}, '{} - {}'.format(pipeline[0]['name'], var1),
+                                           completedText=jconfig['successString'])
+                for var2 in pipelineValues[1]:
+                    pconfig = pconfigs[it]
+                    it+=1
+
+                    print("=== NEW INSTANCE ==  ")
+                    printDict(pconfig, statement="> Using args:")
+                    # Create output directory for instance inside sequential-test directory
+                    auxSeqTestDir2 = makeDir(auxSeqTestDir, 'testrun', completedText=jconfig['successString'])
+
+                    puppet = Puppet(pconfig, debug=jconfig['debug'], outputDir=auxSeqTestDir2)
+                    puppet.pipeline()
+                    dumpConfiguration(pconfig, auxSeqTestDir2, unfoldConfigWith=argListPuppet)
+
+                    if 'single' in jconfig['plot']:
+                        # Get plot possibilities for selected mode
+                        currentPlotConf = makePlotConf(plotConfig, 'plotSingleParams', seqConf)
+                        g = (e for e in argListPlots if e.get('name') == 'singlePlotTypes')
+                        plotTypes = next(g)
+                        makePrettyPlots(currentPlotConf, auxSeqTestDir2, plotTypes['possibilities'], unify=False)
+                    changeDirName(auxSeqTestDir2, extraText=jconfig['successString'])
+
+                if 'seq' in jconfig['plot']:
+                    # Get plot possibilities for selected mode
+                    currentPlotConf = makePlotConf(plotConfig, 'plotSeqParams', seqConf)
+                    g = (e for e in argListPlots if e.get('name') == 'seqPlotTypes')
+                    plotTypes = copy.deepcopy(next(g))
+                    makePrettyPlots(currentPlotConf, auxSeqTestDir, plotTypes['possibilities'], unify=True,
+                                    logFile='logs.json', configFile='config.yaml', unificationType=plotConfig['seqLogConversion'])
+                changeDirName(auxSeqTestDir, extraText=jconfig['successString'])
+
+            if 'seq' in jconfig['plot']:
+                # Get plot possibilities for selected mode
+                currentPlotConf = makePlotConf(plotConfig, 'plotSeqParams', seqConf)
+                g = (e for e in argListPlots if e.get('name') == 'seqPlotTypes')
+                plotTypes = copy.deepcopy(next(g))
+                for k, v in seqConf['changedToHigherDimPlot'].items():
+                    currentPlotConf[k] = v
+                un = False
+
+                makePrettyPlots(currentPlotConf, seqTestDir, plotTypes['possibilities'], unify=un)
+
+            changeDirName(seqTestDir, extraText=jconfig['successString'])
+
+        changeDirName(origDir, extraText=jconfig['successString'])
 
     else:
         # Single test:
@@ -171,16 +223,20 @@ else:
         printDict(pconfig, statement="> Using args:")
 
         # Create output directory for instance
-        dir = getWorkDir(jconfig, jconfig['name'], completedText=jconfig['successString'])
+        auxSeqTestDir2 = getWorkDir(jconfig, jconfig['name'], completedText=jconfig['successString'])
 
         # Run instance
-        puppet = Puppet(args=pconfig, debug=jconfig['debug'], outputDir=dir)
+        puppet = Puppet(args=pconfig, debug=jconfig['debug'], outputDir=auxSeqTestDir2)
         puppet.pipeline()
-        dumpConfiguration(pconfig, dir, unfoldConfigWith=argListPuppet)
+        dumpConfiguration(pconfig, auxSeqTestDir2, unfoldConfigWith=argListPuppet)
 
-        c=makePlotConf(plotConfig, 'plotSingleParams')
-        makePrettyPlots(jconfig['plot'], c, argListPlots, 'single', dir, unify=False)
+        if 'single' in jconfig['plot']:
+            # Get plot possibilities for selected mode
+            currentPlotConf = makePlotConf(plotConfig, 'plotSingleParams', pconfig)
+            g = (e for e in argListPlots if e.get('name') == 'singlePlotTypes')
+            plotTypes = next(g)
+            makePrettyPlots(currentPlotConf, auxSeqTestDir2, plotTypes['possibilities'], unify=False)
 
-        changeDirName(dir, extraText=jconfig['successString'])
+        changeDirName(auxSeqTestDir2, extraText=jconfig['successString'])
 
 

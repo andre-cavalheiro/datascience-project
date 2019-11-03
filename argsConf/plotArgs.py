@@ -19,10 +19,14 @@ argListPlots = [
         'required': False,
         'help': '',
         'possibilities': [
-            ('line', plotDemStats, [('yAxes', 'standard'), ('logFile', 'shared'), ('yLabels', 'shared'),
-                                    ('ymin', 'shared'), ('ymax', 'shared')]),
+            ('line', plotDemStats, [('yAxes', 'standard'),  ('pallets', 'shared'), ('logFile', 'shared'), ('yLabelsLine', 'shared'),
+                                    ('ymin', 'shared'), ('ymax', 'shared'), ('joinYToLabel', 'standard')]),
             ('scatter', scaterThemPlots, [('ymin', 'shared'), ('ymax', 'shared'), ('logFile', 'shared'),
-                                          ('annotations', 'shared')])
+                                          ('yLabelsScatter', 'shared'), ('annotations', 'shared')]),
+            ('scatterNx', scaterThemPlotsNx, [('ymin', 'shared'), ('ymax', 'shared'), ('logFile', 'shared'),
+                                              ('yLabelsScatter', 'shared'), ('distanceToLabel', 'shared')]),
+            ('box', plotThemBoxes, [('yAxesBox', 'standard'), ('ymin', 'shared'), ('ymax', 'shared'), ('logFile', 'shared'),
+                                              ('yLabelsBox', 'shared')])
         ]
     },
     {
@@ -32,12 +36,13 @@ argListPlots = [
         'required': False,
         'help': '',
         'possibilities': [
-            ('line', plotDemStats, [('yAxes', 'standard'), ('pallets', 'shared'), ('yLabels', 'shared'),
+            ('line', plotDemStats, [('yAxes', 'standard'), ('pallets', 'shared'), ('yLabelsLine', 'shared'),
                                     ('logFile', 'shared'), ('ymin', 'shared'), ('ymax', 'shared'),
                                     ('joinYToLabel', 'standard')]),
-            ('scatter', scaterThemPlots, [('ymin', 'shared'), ('ymax', 'shared'), ('logFile', 'shared'), ('yLabels', 'shared')]),
+            ('scatter', scaterThemPlots, [('ymin', 'shared'), ('ymax', 'shared'), ('logFile', 'shared'),
+                                          ('yLabelsScatter', 'shared'), ('annotations', 'shared')]),
             ('scatterNx', scaterThemPlotsNx, [('ymin', 'shared'), ('ymax', 'shared'), ('logFile', 'shared'),
-                                              ('yLabels', 'shared'), ('distanceToLabel', 'shared')])
+                                              ('yLabelsScatter', 'shared'), ('distanceToLabel', 'shared')])
         ]
     },
 ]

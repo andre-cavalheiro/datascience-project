@@ -1,2 +1,42 @@
-- It might be very interesting to see the variation of parameters over sensitity and specitivity (in the same
-plot) to see where the lowest point is in each one and together.
+==== To Remember ====
+
+- Ensemble methods (Random Subspaces) might be super interesting to test out for the 1st dataset, training different classifiers for different
+features (since our features are naturally separated)
+
+- For feature selection:
+    * select classifier for baseline
+    * use feature selection keeping k best features along to the criteria
+    * vary k and see when the performance starts lowering
+
+- Pattern minning is extremly heavy, use feature selection to lower dimensionality.
+
+- If we use PCA for dimensionality reduction we should talk in the report about the possibility of generalization error,
+    which requires extra calculations which we decided not to no. (Remember elbow plot for PCA)
+
+=== Evaluation of the results ====
+
+[Full dataset]
+
+-----
+
+KNN (uniform, eucleudian):
+Balancing by n_neighbors:
+	Sensitivy > specificity.
+	Balencear o dataset parece baixar a sensitivy, (espeialmente no SMOTE), mas nao varia muito o specifcitivity.
+Variar o numero de neighbors nao varia muito a specificity. Na sensitivity, o not balanced apartir k~=25 fica constante no 1, o smote no k~=20 no 0.5 (descend logariticamente). Not balanced varia bastante sendo o valor medio ~0.6
+
+-----
+
+Decision Trees:
+Balancing by depth:
+	Smote calramente melhor, apartir de um certo depth estabiliza no melhor resultado
+	Diferenças na depth varia a sensitivity no NOT BALANCED. Enquanto que diferenças na depth varia a specificity no SMOTE.
+Melhor: SMOTE com depth = 9, 17, 6
+
+-----
+
+Naïve Bayes:
+	Smote claramente pior
+	Nenhum é particularmente bom
+
+-----

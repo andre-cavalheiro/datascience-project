@@ -1,7 +1,7 @@
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier, BaggingClassifier
 
 from src.libs.balancing import *    # fixme !!! should not have src
 from src.libs.treatment import *    # fixme !!! should not have src
@@ -26,7 +26,9 @@ argListPuppet = [
             ('KNN', KNeighborsClassifier),
             ('naiveBays', GaussianNB),
             ('decisionTree', DecisionTreeClassifier),
-            ('randomForest', RandomForestClassifier)
+            ('randomForest', RandomForestClassifier),
+            ('ensembleBagging', BaggingClassifier),
+            ('ensembleVoting', VotingClassifier)
         ]
     },
     {
