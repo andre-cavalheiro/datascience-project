@@ -5,6 +5,8 @@ from sklearn.ensemble import RandomForestClassifier, VotingClassifier, BaggingCl
 
 from src.libs.balancing import *    # fixme !!! should not have src
 from src.libs.treatment import *    # fixme !!! should not have src
+from sklearn.cluster import KMeans, AgglomerativeClustering, MiniBatchKMeans, DBSCAN, SpectralClustering, AffinityPropagation, Birch,MeanShift
+from sklearn.mixture import GaussianMixture
 
 
 argListPuppet = [
@@ -110,6 +112,24 @@ argListPuppet = [
         'required': False,
         'optimize': False,
         'optimizeUniform': [0.30, 0.99]
+    },
+    {
+        'name': 'clusterFunction',
+        'type': str,
+        'default': None,
+        'help': 'Cluster function to be used',
+        'required': False,
+        'possibilities': [
+            ('kmeans', KMeans),
+            ('agglomerativeClustering', AgglomerativeClustering),
+            ('miniBatchKMeans', MiniBatchKMeans),
+            ('dbscan', DBSCAN),
+            ('spectralClustering', SpectralClustering),
+            ('affinityPropagation', AffinityPropagation),
+            ('birch', Birch),
+            ('GaussianMixture', GaussianMixture),
+            ('MeanShift', MeanShift),
+        ]
     },
 ]
 

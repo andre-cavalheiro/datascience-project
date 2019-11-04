@@ -1,4 +1,7 @@
 .idea/
 output/
 src/data/*
+!src/data/proj/
 __pycache__/
+*.yaml
+!configExamples

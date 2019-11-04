@@ -2,37 +2,8 @@
 dataset: 'src/data/pd_speech_features.csv'
 # dataset: 'src/data/covtype.data'
 classname: class
-classifier: randomForest
-classifierParams:
-    # KNN
-    # n_neighbors: 34
-    # weights: 'distance'
-    # metric: 'euclidean'
-
-    # DT
-    # criterion: 'gini'
-    # max_depth: 1
-
-    # Ensemble Bagging
-    #estimator: 'KNN'
-    #ensembleParams:
-    #  n_estimators: 5
-
-    # Random forests
-    n_estimators: 5
-
-    # Ensemble Voting:
-    #ensembleParams:
-    #  voting: 'soft'
-    #clfFunctions: ['KNN1-manhattan', 'KNN34-manhattan']
-    #clfParams:
-    #  - n_neighbors: 1
-    #    weights: 'distance'
-    #    metric: 'manhattan'
-    #  - n_neighbors: 34
-    #    weights: 'distance'
-    #    metric: 'manhattan'
-
+classifier: decisionTree
+# Preparation
 nanStrategy: most_frequent
 balancingStrategy: notBalanced
 rescaler: normalize
@@ -46,6 +17,9 @@ plotX: n_neighbors
 miningParams:
   supportThreshold: 2
   supportConfidence: 0.8
+percComponentsPCA: 0.7
+# Functionality
+clusterFunction: kmeans
 clustering: False
 clusterParams:
-  nclusters: 2
+  n_clusters: 2

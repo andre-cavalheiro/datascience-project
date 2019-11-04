@@ -1,6 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from pandas.plotting import register_matplotlib_converters
+from sklearn.tree import export_graphviz
 import seaborn as sns
+from subprocess import call
 
 def correlation_matrix(data, name, file = None, annotTreshold = 20):
 	annot = False if len(data.columns) > 20 else True
@@ -15,7 +18,6 @@ def correlation_matrix(data, name, file = None, annotTreshold = 20):
 	else:
 		plt.savefig(file)
 	plt.close(fig=fig)
-
 
 def sparsity(data, file = None):
 	columns = data.select_dtypes(include='number').columns
@@ -38,3 +40,36 @@ def sparsity(data, file = None):
 		plt.savefig(file)
 	plt.close(fig=fig)
 
+def sens_spec_scatter(inputF, file=None, name="Sensitivity and Sensitivity", sensLabel = 'sensitivity', \
+						specLabel = 'specificity', label = 'balancingStrategy'):
+	data = pd.read_csv(inputF,  sep='\t', encoding='utf-8')
+	fig, ax = plt.subplots()
+
+	data = pd.read_csv("../data/pd_speech_features.csv", header=[0,1])
+	plt.xlabel('Sensitivity')
+	plt.ylabel('Specificity')
+
+	for index, row in data.iterrows():
+		ax.scatter(row[sensLabel], row[specLabel], label=row[label], edgecolors='none')
+
+	plt.title('Sensitivity and specificity of {}'.format(name))
+	ax.legend()
+	ax.grid(True)
+
+	if(file == None):
+		plt.show()
+	else:
+		plt.savefig(file)
+
+def decision_tree_visualizer(tree, dir, filename = "dtree", show = False):
+	dot_file = '{}/{}.dot'.format(dir, filename)
+	png_file = '{}/{}.png'.format(dir, filename)
+
+	dot_data = export_graphviz(tree, out_file=dot_file, filled=True, rounded=True, special_characters=True)  
+	call(['dot', '-Tpng', dot_file, '-o', png_file, '-Gdpi=600'])
+
+	if show:
+		plt.figure(figsize = (14, 18))
+		plt.imshow(plt.imread(png_file))
+		plt.axis('off')
+		plt.show()
