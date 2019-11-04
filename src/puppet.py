@@ -32,7 +32,6 @@ class Puppet:
         if self.args['patternMining']:
             df, x, y, _ = self._treatment()
             self.patternMining(df,x, y)      # Since no optimization is needed no return is necessary
-
         elif self.args['clustering']:
             self.cluster_method = self.linkFunctionToArgs('clusterFunction','clusterParams')
             self.evaluate_clustering(*self.do_clustering(*self._treatment()))
@@ -152,18 +151,25 @@ class Puppet:
         return -cost
 
     def patternMining(self, df, x, y):
-        min_sup = 0.35 if self.args['miningParams']["min_support"] == None else self.args['miningParams']["min_support"] 
-        min_conf = 0.7 if self.args['miningParams']["min_confidence"] == None else self.args['miningParams']["min_confidence"] 
-        min_lift = 1.2 if self.args['miningParams']["min_lift"] == None else self.args['miningParams']["min_lift"] 
-        iteratively_decreasing_support = True if self.args['miningParams']["iteratively_decreasing_support"] == None else self.args['miningParams']["iteratively_decreasing_support"] 
-        minpatterns = 30
-        pattern_metric = "lift" if self.args['miningParams']["pattern_metric"] == None else self.args['miningParams']["pattern_metric"]
+        print('--- Pattern Mining ---')
+        default_values = {
+            'min_sup': 0.35,
+            'min_conf': 0.7,
+            'min_lift': 1.2,
+            'iteratively_decreasing_support': True,
+            'pattern_metric': "lift",
+            'min_patterns': 30
+        }
+        params = {**default_values, **self.args['miningParams']} if 'miningParams' in self.args and \
+                                                                    self.args['miningParams'] != None else default_values
+
         # add defaults above to args.py
         # make flow here based on args (quick stuff)
         columns = SelectKBest(f_classif, k=10).fit(x, y).get_support()
         new_x = x.loc[:,columns]
-        patterns = get_frequent_itemsets(dummify(discretize(new_x)), minsup = min_sup, iteratively_decreasing_support = False, minpatterns = 30)
-        assoc_rules = get_association_rules(freqs, metric=pattern_metric)
+        freqs = get_frequent_itemsets(dummify(discretize(new_x)), minsup = params['min_sup'], \
+            iteratively_decreasing_support = params['iteratively_decreasing_support'], minpatterns = params['min_patterns'])
+        assoc_rules = get_association_rules(freqs, metric = params['pattern_metric'], min_lift = params['min_lift'])
         
         #lab 6:
         #interesting_rules[(rules['antecedent_len']>=3 and rules['confidence'] >=0.9)][0:10]
