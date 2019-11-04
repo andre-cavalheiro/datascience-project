@@ -2,6 +2,7 @@ import pandas as pd
 from pyfpgrowth import find_frequent_patterns, generate_association_rules
 from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import SelectKBest, f_classif
+import numpy as np 
 
 from src.libs.balancing import *
 from src.libs.pattern_mining import *
@@ -31,7 +32,7 @@ class Puppet:
     def pipeline(self):
         if self.args['patternMining']:
             df, x, y, _ = self._treatment()
-            self.patternMining(df,x, y)      # Since no optimization is needed no return is necessary
+            self.evaluatePatternMining(self.patternMining(df,x, y))      # Since no optimization is needed no return is necessary
         elif self.args['clustering']:
             self.cluster_method = self.linkFunctionToArgs('clusterFunction','clusterParams')
             self.evaluate_clustering(*self.do_clustering(*self._treatment()))
@@ -158,7 +159,9 @@ class Puppet:
             'min_lift': 1.2,
             'iteratively_decreasing_support': True,
             'pattern_metric': "lift",
-            'min_patterns': 30
+            'min_patterns': 30,
+            'n': 3,
+            'type': 'cut'
         }
         params = {**default_values, **self.args['miningParams']} if 'miningParams' in self.args and \
                                                                     self.args['miningParams'] != None else default_values
@@ -167,10 +170,14 @@ class Puppet:
         # make flow here based on args (quick stuff)
         columns = SelectKBest(f_classif, k=10).fit(x, y).get_support()
         new_x = x.loc[:,columns]
-        freqs = get_frequent_itemsets(dummify(discretize(new_x)), minsup = params['min_sup'], \
+        dummi_x = dummify(discretize(new_x, n = params['n'], type = params['type']))
+
+        freqs = get_frequent_itemsets(dummi_x, minsup = params['min_sup'], \
             iteratively_decreasing_support = params['iteratively_decreasing_support'], minpatterns = params['min_patterns'])
         assoc_rules = get_association_rules(freqs, metric = params['pattern_metric'], min_lift = params['min_lift'])
         
+
+        return assoc_rules
         #lab 6:
         #interesting_rules[(rules['antecedent_len']>=3 and rules['confidence'] >=0.9)][0:10]
         #for r in interesting_rules:
@@ -186,3 +193,15 @@ class Puppet:
         rules = generate_association_rules(patterns, self.args['miningParams']['supportConfidence'])
         print(rules)
         """
+
+    def evaluatePatternMining(self, assoc_rules):
+        results = {
+            'support': assoc_rules['support'].tolist(),
+            'lift': assoc_rules['lift'].tolist(),
+            'confidence': assoc_rules['confidence'].tolist(),
+            'avg_support': np.mean(assoc_rules['support']),
+            'avg_lift': np.mean(assoc_rules['lift']),
+            'avg_confidence': np.mean(assoc_rules['confidence'])
+            }
+
+        printResultsToJson(results, self.outputDir)

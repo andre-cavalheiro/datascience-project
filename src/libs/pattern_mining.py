@@ -35,5 +35,5 @@ def get_association_rules(frequent_itemsets, metric="confidence", min_conf = 0.7
     minconf = 0.7
     rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=minconf)
     rules["antecedent_len"] = rules["antecedents"].apply(lambda x: len(x))
-    print(rules[(rules['antecedent_len']>=2)])
+    print(rules.columns.values)
     return rules
