@@ -1,0 +1,32 @@
+configs:
+   - name: naiveBays (balancing)
+     variations:
+      - name: balancingStrategy
+        values: [notBalanced, randUndersample, smote]
+     variationsWithin:
+      - name: ''
+        subName: ''
+        values: []
+     priorityLine: [balancingStrategy]
+     changedToHigherDimPlot:
+      level: fetchCSV
+      pallets: True
+      joinYToLabel: [True, False, False]
+      yLabelsLine:  ['Not Balanced', 'Randomly Undersample', 'SMOTE']
+      yLabelsBox:  ['Not Balanced', 'Randomly Undersample', 'SMOTE']
+      yLabelsScatter:  ['Not Balanced', 'Randomly Undersample', 'SMOTE']
+     classifier: decisionTree
+     classifierParams:
+      criterion: 'gini'
+      max_depth: 2
+     dataset: 'src/data/pd_speech_features.csv'
+     classname: class
+     nanStrategy: most_frequent
+     rescaler: normalize
+     correlationThreshold: 1
+     PCA: False
+     dataSplitMethod: 'kfold'
+     kFold: 10
+     clustering: False
+     patternMining: False
+     plotX: max_depth
