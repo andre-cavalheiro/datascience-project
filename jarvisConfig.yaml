@@ -6,7 +6,7 @@ conf: src/config.yaml
 confSeq: src/configSeq.yaml
 confPlot: plotConfig.yaml
 outputDir: src\output\
-debug: False
+debug: True
 optimizer:
   numTrials: 30
   numJobs: 1
