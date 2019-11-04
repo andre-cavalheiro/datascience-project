@@ -85,7 +85,7 @@ class Puppet:
                     for key, vals in results.items():
                         if(isinstance(vals[0], int) or isinstance(vals[0], float)):
                             averagedResults[key] = sum(vals)/len(vals)
-                            valsWithoutNans = list(pd.Series(vals).fillna(method='ffill'))
+                            valsWithoutNans = list(pd.Series(vals).fillna(method='ffill').fillna(method='bfill'))
                             averagedResults[key + '_kfoldVals'] = valsWithoutNans
 
                     printResultsToJson(averagedResults, self.outputDir)

@@ -42,7 +42,7 @@ def changeDirName(origPath, nemName='', extraText=''):
     oldFoderName = basename(normpath(origPath))
     newFolderName = oldFoderName + extraText
 
-    rename(origPath, join(pathToFolder, newFolderName))
+#    rename(origPath, join(pathToFolder, newFolderName))
 
 
 def getFilesInDir(dir):

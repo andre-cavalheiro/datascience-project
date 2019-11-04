@@ -124,8 +124,7 @@ def makePrettyPlots(config, dir, possibilities, unify=False, logFile='logs.json'
     # IMPORTANT:
     # IMPORTANT:
     # IMPORTANT:
-    assert (len(config['x']) == len(config['ys']))
-    assert(len(config['x']) == len(config['type']))
+    assert(len(config['ys']) == len(config['type']))
 
     types, funcs, args = [], [], []
     for p in possibilities:

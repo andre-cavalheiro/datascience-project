@@ -148,7 +148,6 @@ def multipleYsLinePlot(ax, data, y_types, x_type, colors=[], labels=[], joinYToL
 
 def scaterThemPlotsNx(level, dir, x, ys, logFile, dpi, yLabelsScatter=None, ymin=None, ymax=None, annotations=False, distanceToLabel=None):
 
-    yLabels = yLabelsScatter
     data = fetchData(dir, level, logFile)
 
     fig, ax = plt.subplots()
@@ -164,6 +163,7 @@ def scaterThemPlotsNx(level, dir, x, ys, logFile, dpi, yLabelsScatter=None, ymin
 
         x_ = resSorted[ys[0]]
         y_ = resSorted[ys[1]]
+        yLabels = yLabelsScatter if len(yLabelsScatter) == len(data) else [[''] for j in y_ for i in data]
         ax.scatter(x_, y_, label=yLabels[i])
         dists = []
         for x__, y__ in zip(x_, y_):
@@ -223,18 +223,18 @@ def scaterThemPlotsNx(level, dir, x, ys, logFile, dpi, yLabelsScatter=None, ymin
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
     outputName = buildOutputName(x, ys, dir)
+    plt.show()
     plt.savefig(outputName + ' - scatterNx.png', dpi=dpi)
-    plt.close(fig=fig)
+    #plt.close(fig=fig)
 
 
 
 def scaterThemPlots(level, dir, x, ys, logFile, dpi, yLabelsScatter, ymin=None, ymax=None, annotations=False):
 
-    yLabels = yLabelsScatter
     data = fetchData(dir, level, logFile)
+    yLabels = yLabelsScatter if len(yLabelsScatter)== len(data) else ['' for i in data]
 
     fig, ax = plt.subplots()
-
 
     for i, res in enumerate(data):
         if annotations:
