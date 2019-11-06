@@ -146,17 +146,21 @@ else:
                     pipeline.append({'name': variationWithinValues[p][0], 'subName': p,
                                      'values': variationWithinValues[p][1]})
 
-            pconfigs = recursiveThingy(pipeline, seqConf, argListPuppet)
+            pconfigs = recursivelyBuildConfigs(pipeline, seqConf, argListPuppet)
 
             print("==========        RUNNING TEST RUN - [{}]     ==========".format(jconfig['name']))
             # Create Directory for outputs
             seqTestDir = getWorkDir({'outputDir': origDir}, name, completedText=jconfig['successString'])
-
-            # Todo - this should be recursive too!! right now it only allows 2 parameters to be varied
-            assert(len(pipeline) == 2)    # just for now
+            names = [n['name'] if 'name' in n.keys() else 'testrun' for n in pipeline]
             pipelineValues = [t['values'] for t in pipeline]
+            recursivelyRunPuppets(pipelineValues, 0, pconfigs, seqTestDir, jconfig,
+                    plotConfig, argListPuppet, argListPlots, seqConf, names)
 
+            '''
+            # Todo - this should be recursive too!! right now it only allows 2 parameters to be varied
+            # assert(len(pipeline) == 2)    # just for now
             it=0
+            
             for var1 in pipelineValues[0]:
                 auxSeqTestDir = getWorkDir({'outputDir': seqTestDir}, '{} - {}'.format(pipeline[0]['name'], var1),
                                            completedText=jconfig['successString'])
@@ -198,10 +202,10 @@ else:
                 for k, v in seqConf['changedToHigherDimPlot'].items():
                     currentPlotConf[k] = v
                 un = False
-
                 makePrettyPlots(currentPlotConf, seqTestDir, plotTypes['possibilities'], unify=un)
 
             changeDirName(seqTestDir, extraText=jconfig['successString'])
+            '''
 
         changeDirName(origDir, extraText=jconfig['successString'])
 
@@ -238,5 +242,8 @@ else:
             makePrettyPlots(currentPlotConf, auxSeqTestDir2, plotTypes['possibilities'], unify=False)
 
         changeDirName(auxSeqTestDir2, extraText=jconfig['successString'])
+
+
+
 
 

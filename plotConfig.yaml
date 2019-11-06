@@ -8,7 +8,7 @@ dpi: 500
 #    ['n_neighbors', 'n_neighbors']
 #]
 ys: [
-      # [['sensitivity', 'specificity'], ['sensitivity'], ['specificity']],
+      [['sensitivity', 'specificity'], ['sensitivity'], ['specificity']],
       [['sensitivity', 'specificity']],
       [['sensitivity', 'specificity']],
       [['sensitivity_kfoldVals'], ['specificity_kfoldVals']]

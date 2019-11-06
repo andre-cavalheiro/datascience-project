@@ -147,8 +147,6 @@ def getTopCorrelations(df, n=None):
     	return sol
 
 
-<<<<<<< HEAD
-=======
 #TODO auto discover non-real cols
 def discretize(df, n = 3, type = "cut"):
     new_df = df.copy()
@@ -170,4 +168,3 @@ def dummify(df):
         dummylist.append(pd.get_dummies(df[[att]]))
     dummi_df = pd.concat(dummylist, axis=1)
     return dummi_df
->>>>>>> c67b292a1694e45213d73681b19625196e5229c4

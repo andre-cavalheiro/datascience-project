@@ -1,4 +1,3 @@
-import arff #from liac-arff package
 import pandas as pd, numpy as np
 from IPython.display import display, HTML
 from sklearn.preprocessing import LabelBinarizer #for dummification

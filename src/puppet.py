@@ -155,9 +155,9 @@ class Puppet:
             # Plot confusion matrix
             rocCurve(y_test, y_predict, self.outputDir, iterator=iterator)
 
-        if self.args['classifier'].__name__ == 'DecisionTreeClassifier':
+        '''if self.args['classifier'].__name__ == 'DecisionTreeClassifier':
             decision_tree_visualizer(self.clf, self.outputDir)
-
+        '''
         # Output results
         results.update(extraInfo)
         results.update(results2)
