@@ -127,22 +127,24 @@ else:
             pconfigs = []
 
             name = seqConf['name']
-            variations = seqConf['variations']
-            variationsWithin = seqConf['variationsWithin']
-            del seqConf['variations']
-            del seqConf['variationsWithin']
+            variations = seqConf['variations'] if 'variations' in seqConf.keys() else None
+            variationsWithin = seqConf['variationsWithin'] if 'variationsWithin' in seqConf.keys() else None
+            if 'variations' in seqConf.keys():
+                del seqConf['variations']
+            if 'variationsWithin' in seqConf.keys():
+                del seqConf['variationsWithin']
 
-            variationNames = [v['name'] for v in variations]
-            variationValues = {v['name']: v['values'] for v in variations}
-            variationWithinNames = [v['subName'] for v in variationsWithin]
-            variationWithinValues = {v['subName']: (v['name'], v['values'],) for v in variationsWithin}
+            variationNames = [v['name'] for v in variations] if variations is not None else []
+            variationValues = {v['name']: v['values'] for v in variations} if variations is not None else []
+            variationWithinNames = [v['subName'] for v in variationsWithin] if variationsWithin is not None else []
+            variationWithinValues = {v['subName']: (v['name'], v['values'],) for v in variationsWithin} if variationsWithin is not None else []
 
             pipeline = []
 
             for p in seqConf['priorityLine']:
-                if p in variationNames:
+                if variationNames and p in variationNames:
                     pipeline.append({'name': p, 'values': variationValues[p]})
-                elif p in variationWithinNames:
+                elif variationWithinNames and p in variationWithinNames:
                     pipeline.append({'name': variationWithinValues[p][0], 'subName': p,
                                      'values': variationWithinValues[p][1]})
 
@@ -151,7 +153,15 @@ else:
             print("==========        RUNNING TEST RUN - [{}]     ==========".format(jconfig['name']))
             # Create Directory for outputs
             seqTestDir = getWorkDir({'outputDir': origDir}, name, completedText=jconfig['successString'])
-            names = [n['name'] if 'name' in n.keys() else 'testrun' for n in pipeline]
+            names = []
+            for n in pipeline:
+                if 'subName' in n.keys():
+                    names.append(n['subName'])
+                elif 'name' in n.keys():
+                    names.append(n['name'])
+                else:
+                    names.append('testrun')
+
             pipelineValues = [t['values'] for t in pipeline]
             recursivelyRunPuppets(pipelineValues, 0, pconfigs, seqTestDir, jconfig,
                     plotConfig, argListPuppet, argListPlots, seqConf, names)

@@ -1,12 +1,6 @@
 seqLogConversion: 'yaml,json-Csv'
 logFile: output.csv
 dpi: 500
-#x: [
-#    ['n_neighbors', 'n_neighbors', 'n_neighbors'],
-#    ['n_neighbors'],
-#    ['n_neighbors'],
-#    ['n_neighbors', 'n_neighbors']
-#]
 ys: [
       [['sensitivity', 'specificity'], ['sensitivity'], ['specificity']],
       [['sensitivity', 'specificity']],
@@ -32,7 +26,7 @@ plotSeqParams:
   pallets: False
 
   # OnlyScatter
-  yLabelsScatter: [''] # fixme - careful with the order of directories
+  yLabelsScatter: ['']
   distanceToLabel: 0.15
 
   # Only Box

@@ -14,3 +14,9 @@ Melhor: SMOTE com depth = 9, 17, 6
 Naïve Bayes:
 	Smote claramente pior
 	Nenhum é particularmente bom
+
+
+- kfold validation maintainning class ratio into each fold
+- investigate each classifier with SMOTE already chosen?
+- Comentar pq é que escolhe-mos aplicar feat select depois de balanceamento (havia beneficios nos 2 e bla bla bla).
+- Meter uma regra de pattern minning no relatorio e comentá-la.

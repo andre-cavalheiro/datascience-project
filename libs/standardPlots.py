@@ -11,7 +11,7 @@ import ast
 
 colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
 reds = ['lightcoral', 'indianred', 'darkred', 'r', 'lightsalmon']
-blues = ['deepskyblue', 'darkcyan', 'lightskyblue', 'steelblue', 'azure']
+blues = ['deepskyblue', 'lightskyblue', 'darkcyan', 'steelblue', 'azure']
 greens = ['g', 'limegreen', 'forestgreen', 'mediumseagrean', 'palegreen']
 greys = ['dimgrey', 'darkgrey', 'lightgrey', 'slategrey', 'silver']
 pinks = ['magenta', 'violet', 'purple', 'hotpink', 'pink']

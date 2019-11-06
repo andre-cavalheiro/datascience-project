@@ -260,12 +260,12 @@ def recursivelyBuildConfigs(pipeline, configs, argListPuppet, iterator=0):
 
 
 def recursivelyRunPuppets(pipeline, iterator, pconfigs, prevDir, jconfig,
-                    plotConfig, argListPuppet, argListPlots, seqConf, names):
+                    plotConfig, argListPuppet, argListPlots, seqConf, names, numRan=0):
 
 
     if len(pipeline)-1 == iterator:
         for i, var in enumerate(pipeline[iterator]):
-            pconfig = pconfigs[i]
+            pconfig = pconfigs[numRan]
 
             print("=== NEW INSTANCE ==  ")
             # printDict(pconfig, statement="> Using args:")
@@ -275,7 +275,7 @@ def recursivelyRunPuppets(pipeline, iterator, pconfigs, prevDir, jconfig,
             puppet = Puppet(copy.copy(pconfig), debug=jconfig['debug'], outputDir=dir)
             puppet.pipeline()
             dumpConfiguration(copy.copy(pconfig), dir, unfoldConfigWith=argListPuppet)
-
+            numRan+=1
             if 'single' in jconfig['plot']:
                 # Get plot possibilities for selected mode
                 currentPlotConf = makePlotConf(plotConfig, 'plotSingleParams', seqConf)
@@ -297,12 +297,14 @@ def recursivelyRunPuppets(pipeline, iterator, pconfigs, prevDir, jconfig,
                             logFile='logs.json', configFile='config.yaml',
                                 unificationType=plotConfig['seqLogConversion'])
             changeDirName(prevDir, extraText=jconfig['successString'])
+
+        return numRan
     else:
         for i, var in enumerate(pipeline[iterator]):
 
             dir = getWorkDir({'outputDir': prevDir}, '{} - {}'.format(names[iterator], var))
-            recursivelyRunPuppets(pipeline, iterator+1, pconfigs, dir, jconfig,
-                                  plotConfig, argListPuppet, argListPlots, seqConf, names)
+            numRan = recursivelyRunPuppets(pipeline, iterator+1, pconfigs, dir, jconfig,
+                                  plotConfig, argListPuppet, argListPlots, seqConf, names, numRan)
 
             if 'seq' in jconfig['plot']:
                 # Get plot possibilities for selected mode
@@ -312,6 +314,11 @@ def recursivelyRunPuppets(pipeline, iterator, pconfigs, prevDir, jconfig,
                 un = False
                 if seqConf['unifyByRecursionLevels'][iterator] == 1:
                     un = True
+
+                if 'changedToLowerDimPlot' in seqConf.keys():
+                    for k, v in seqConf['changedToLowerDimPlot'].items():
+                        currentPlotConf[k] = v
+
                 makePrettyPlots(currentPlotConf, dir, plotTypes['possibilities'], unify=un,
                                 logFile='logs.json', configFile='config.yaml',
                                 unificationType=plotConfig['seqLogConversion'])
@@ -324,10 +331,12 @@ def recursivelyRunPuppets(pipeline, iterator, pconfigs, prevDir, jconfig,
             g = (e for e in argListPlots if e.get('name') == 'seqPlotTypes')
             plotTypes = copy.deepcopy(next(g))
             un = False  # fixme - should not be hardecoded
-            for k, v in seqConf['changedToHigherDimPlot'].items():
-                currentPlotConf[k] = v
+            if 'changedToHigherDimPlot' in seqConf.keys():
+                for k, v in seqConf['changedToHigherDimPlot'].items():
+                    currentPlotConf[k] = v
             makePrettyPlots(currentPlotConf, prevDir, plotTypes['possibilities'], unify=un,
                             logFile='logs.json', configFile='config.yaml',
                             unificationType=plotConfig['seqLogConversion'])
 
         changeDirName(prevDir, extraText=jconfig['successString'])
+        return numRan
