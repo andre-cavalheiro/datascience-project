@@ -7,7 +7,7 @@ from src.libs.balancing import *    # fixme !!! should not have src
 from src.libs.treatment import *    # fixme !!! should not have src
 from sklearn.cluster import KMeans, AgglomerativeClustering, MiniBatchKMeans, DBSCAN, SpectralClustering, AffinityPropagation, Birch,MeanShift
 from sklearn.mixture import GaussianMixture
-
+from sklearn.feature_selection import f_classif, chi2, f_regression
 
 argListPuppet = [
     {
@@ -128,8 +128,27 @@ argListPuppet = [
             ('affinityPropagation', AffinityPropagation),
             ('birch', Birch),
             ('GaussianMixture', GaussianMixture),
-            ('MeanShift', MeanShift),
+            ('meanShift', MeanShift),
         ]
+    },
+    {
+        'name': 'featureFunction',
+        'type': str,
+        'default': None,
+        'help': 'Feature selection fuction',
+        'required': False,
+        'possibilities': [
+            ('f_classif', f_classif),
+            ('chi2', chi2),
+            ('f_regression', f_regression),
+        ]
+    },
+    {
+        'name': 'nFeatures',
+        'type': int,
+        'default': 10,
+        'help': 'N features to select',
+        'required': False,
     },
 ]
 

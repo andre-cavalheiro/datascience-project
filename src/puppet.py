@@ -23,7 +23,6 @@ class Puppet:
         self.args = args
         self.debug = debug
         self.outputDir = outputDir
-        self.clf = defineClassifier(args['classifier'], args)
 
 
     def pipeline(self):
@@ -41,8 +40,9 @@ class Puppet:
             self.evaluate_clustering(*self.do_clustering(df, x, y, {}))
 
         else:
+            self.clf = defineClassifier(args['classifier'], args)
             # Run classifier
-            self.clf = self.linkFunctionToArgs('classifier','classifierParams')
+            #self.clf = self.linkFunctionToArgs('classifier','classifierParams')
 
             # todo - Dont know if i can/should balance a dataset with class non binary
             if 'pd_speech_features' in self.args['dataset']:
@@ -169,7 +169,7 @@ class Puppet:
         print('--- Pattern Mining ---')
         default_values = {
             'min_sup': 0.35,
-            'min_conf': 0.7,
+            'min_conf': 0.9,
             'min_lift': 1.2,
             'iteratively_decreasing_support': True,
             'pattern_metric': "lift",
@@ -177,19 +177,19 @@ class Puppet:
             'n': 3,
             'type': 'cut'
         }
+
         params = {**default_values, **self.args['miningParams']} if 'miningParams' in self.args and \
                                                                     self.args['miningParams'] != None else default_values
-
+        
         # add defaults above to args.py
         # make flow here based on args (quick stuff)
-        columns = SelectKBest(f_classif, k=10).fit(x, y).get_support()
+        columns = SelectKBest(self.args['featureFunction'], k=self.args['nFeatures']).fit(x, y).get_support()
         new_x = x.loc[:,columns]
-        dummi_x = dummify(discretize(new_x, n = params['n'], type = params['type']))
+        dummi_x = dummify(discretize(new_x, n = self.args['miningParams']['n'], type = self.args['typeMiningParams']))
 
         freqs = get_frequent_itemsets(dummi_x, minsup = params['min_sup'], \
             iteratively_decreasing_support = params['iteratively_decreasing_support'], minpatterns = params['min_patterns'])
         assoc_rules = get_association_rules(freqs, metric = params['pattern_metric'], min_lift = params['min_lift'])
-        
 
         return assoc_rules
         #lab 6:
@@ -273,6 +273,8 @@ class Puppet:
 
 
     def evaluatePatternMining(self, assoc_rules):
+        #assoc_rules = assoc_rules[~(assoc_rules.antecedents.map(len) > 2)]
+
         results = {
             'support': assoc_rules['support'].tolist(),
             'lift': assoc_rules['lift'].tolist(),
