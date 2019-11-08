@@ -1,32 +1,34 @@
 configs:
-   - name: naiveBays (balancing)
+   - name: pattern mining
      variations:
-      - name: balancingStrategy
-        values: [notBalanced, randUndersample, smote]
+        - name: typeMiningParams 
+          values: [cut, qcut]
      variationsWithin:
-      - name: ''
-        subName: ''
-        values: []
-     priorityLine: [balancingStrategy]
+        - name: miningParams
+          subName: n
+          values: [2, 3, 4, 5, 6, 7, 8, 9]
+     priorityLine: [typeMiningParams, n]
      changedToHigherDimPlot:
       level: fetchCSV
       pallets: True
       joinYToLabel: [True, False, False]
-      yLabelsLine:  ['Not Balanced', 'Randomly Undersample', 'SMOTE']
+      yLabelsLine:  ['cut', 'qcut']
       yLabelsBox:  ['Not Balanced', 'Randomly Undersample', 'SMOTE']
       yLabelsScatter:  ['Not Balanced', 'Randomly Undersample', 'SMOTE']
-     classifier: decisionTree
-     classifierParams:
-      criterion: 'gini'
-      max_depth: 2
      dataset: 'src/data/pd_speech_features.csv'
      classname: class
      nanStrategy: most_frequent
      rescaler: normalize
      correlationThreshold: 1
      PCA: False
-     dataSplitMethod: 'kfold'
-     kFold: 10
      clustering: False
-     patternMining: False
-     plotX: max_depth
+     patternMining: True
+     plotX: n
+     clusterFunction: kmeans
+     clustering: False
+     clusterParams:
+      n_clusters: 2
+     miningParams:
+      min_patterns: 30
+     featureFunction: f_classif
+     nFeatures: 10

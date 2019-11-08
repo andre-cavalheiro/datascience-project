@@ -12,6 +12,8 @@ PCA: False
 dataSplitMethod: 'kfold'
 kFold: 10
 patternMining: False
+featureFunction: f_classif
+nFeatures: 10
 saveModel: False
 plotX: n_neighbors
 miningParams:
@@ -20,6 +22,6 @@ miningParams:
 percComponentsPCA: 0.7
 # Functionality
 clusterFunction: kmeans
-clustering: False
+clustering: True
 clusterParams:
   n_clusters: 2
