@@ -1,18 +1,18 @@
 import pandas as pd
 from pyfpgrowth import find_frequent_patterns, generate_association_rules
-from sklearn.model_selection import train_test_split, KFold, StratifiedKFold
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import SelectKBest, f_classif
-import numpy as np 
+from sklearn.model_selection import train_test_split, KFold, StratifiedKFold
+from sklearn.model_selection import train_test_split
+import numpy as np
 
-from src.libs.balancing import *
 from src.libs.pattern_mining import *
-from src.libs.treatment import *
 from src.libs.evaluate import *
 from src.libs.utils import *
-
+from src.libs.balancing import *
+from src.libs.treatment import *
 from src.libs.plot import *
+
 from src.args import *
 
 class Puppet:
@@ -40,7 +40,7 @@ class Puppet:
             self.evaluate_clustering(*self.do_clustering(df, x, y, {}))
 
         else:
-            self.clf = defineClassifier(args['classifier'], args)
+            self.clf = defineClassifier(self.args['classifier'], self.args)
             # Run classifier
             #self.clf = self.linkFunctionToArgs('classifier','classifierParams')
 

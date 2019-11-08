@@ -1,4 +1,4 @@
-name: experimentations
+name: experiments
 optimize: False       # Turns optimizer mode on and off
 seq: False             # Turns sequential mode on and off
 plot: ['seq']            # Plot modes to activate: single, seq, only
