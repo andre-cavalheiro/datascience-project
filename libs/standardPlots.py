@@ -11,7 +11,7 @@ import ast
 
 colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
 reds = ['lightcoral', 'indianred', 'darkred', 'r', 'lightsalmon']
-blues = ['deepskyblue', 'darkcyan', 'lightskyblue', 'steelblue', 'azure']
+blues = ['deepskyblue', 'lightskyblue', 'darkcyan', 'steelblue', 'azure']
 greens = ['g', 'limegreen', 'forestgreen', 'mediumseagrean', 'palegreen']
 greys = ['dimgrey', 'darkgrey', 'lightgrey', 'slategrey', 'silver']
 pinks = ['magenta', 'violet', 'purple', 'hotpink', 'pink']
@@ -28,13 +28,18 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
     fig, ax = plt.subplots()
 
     for i, res in enumerate(data):
-        for j, y in enumerate(ys):
+        if x == None or x == "index":
+            xSorted = pd.Series([str(v) for v in res.index.values])
+            resSorted = res
+        else:
             resSorted = res.sort_values(by=[x])
-            xSorted = resSorted[x]  # Varied values (exp. n_neighbors)
+            xSorted = resSorted[x]
+
+        for j, y in enumerate(ys):
             ySorted = resSorted[y]  # List of values correspondent correspondent to the fixed one
             ySorted = [ast.literal_eval(ySorted.values[j]) for j in range(len(ySorted))]     # convert string to list ( each one with several kfold values)
 
-            max = xSorted.max()
+            max = xSorted.max() if type(xSorted[0]) is not str else len(xSorted)
             numDataPoints = len(xSorted)
             boxesPerDataPoint = len(data)
             distBetweenDataPoints = max/numDataPoints
@@ -49,7 +54,8 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
                 delta = [-deltaValue, 0, deltaValue]
 
             # Move plots to the sides
-            dislocatedX = [z+delta[i] for z in xSorted] if delta else xSorted
+            xValues = xSorted if type(xSorted[0]) is not str else list(range(len(xSorted)))
+            dislocatedX = [z+delta[i] for z in xValues] if delta else xValues
 
             # Create plot
             # width = 1     # 0.1
@@ -67,10 +73,10 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
 
     # X axis:
     xAxis = [str(j) for j in xSorted]
-    plt.xticks(xSorted, xAxis)
+    plt.xticks(xValues, xAxis)
 
     # Increase x minimum to catch a bit more on the left
-    xmin = xSorted[0]-np.diff(xSorted)[0]
+    xmin = xValues[0]-np.diff(xValues)[0]
     ax.set_xlim(left=xmin)
 
     if ymin is not None:
@@ -95,11 +101,12 @@ def plotDemStats(level, dir, x, ys, logFile, yLabelsLine=[], yAxes='', ymin=None
 
     # labelsToUse = yLabels if len(yLabels) == len(data) else ['' for i in data]
     for i, res in enumerate(data):
-        if len(yLabels) == len(data):
+        shape = len(data) if len(data)==len(yLabels) else data[0].shape[0]
+        if len(yLabels) == shape:
             # takes priority
-            labels = [yLabels[i] for k in ys]
-        elif len(yLabels[i]) == len(ys):
-            labels = yLabels[i]
+            labels = [yLabels[i] for j,_ in enumerate(ys)]
+        elif len(yLabels) == len(ys):
+            labels = yLabels
         else:
             labels = ['' for y in yLabels]
 
@@ -159,8 +166,13 @@ def scaterThemPlotsNx(level, dir, x, ys, logFile, dpi, yLabelsScatter=None, ymin
     it = 0
     for i, res in enumerate(data):
         assert (len(ys) > 0)
-        resSorted = res.sort_values(by=[x])
-        xVal = resSorted[x]
+        if x == None or x == "index":
+            xVal = [str(v) for v in res.index.values]
+            resSorted = res
+        else:
+            resSorted = res.sort_values(by=[x])
+            xVal = resSorted[x]
+
 
         x_ = resSorted[ys[0]]
         y_ = resSorted[ys[1]]
@@ -224,15 +236,29 @@ def scaterThemPlotsNx(level, dir, x, ys, logFile, dpi, yLabelsScatter=None, ymin
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
     outputName = buildOutputName(x, ys, dir)
-    plt.show()
+    # plt.show()
     plt.savefig(outputName + ' - scatterNx.png', dpi=dpi)
-    #plt.close(fig=fig)
+    plt.close(fig=fig)
 
 
 
 def scaterThemPlots(level, dir, x, ys, logFile, dpi, yLabelsScatter, ymin=None, ymax=None, annotations=False):
 
+
+
     data = fetchData(dir, level, logFile)
+    if level == 'localCSV' and len(yLabelsScatter) == data[0].shape[0]:
+        aux = list(data[0].T.to_dict().values())
+        data = [pd.DataFrame(p, index=[i for i in range(len(p.keys()))]) for p in aux]
+    '''
+    if len(data==1) and len(yLabels) == data[0].shape[0]:
+        transform data into list of arrays.
+        
+    shape = len(data) if len(data) == len(yLabelsScatter) else data[0].shape[0]
+    if len(yLabelsScatter) == shape:
+        # takes priority
+        labels = [yLabelsScatter[i] for i in range(shape)]
+    '''
     yLabels = yLabelsScatter if len(yLabelsScatter)== len(data) else ['' for i in data]
 
     fig, ax = plt.subplots()
@@ -240,8 +266,12 @@ def scaterThemPlots(level, dir, x, ys, logFile, dpi, yLabelsScatter, ymin=None, 
     for i, res in enumerate(data):
         if annotations:
             assert(len(ys)>0)
-            resSorted = res.sort_values(by=[x])
-            xVal = resSorted[x]
+            if x == None or x == "index":
+                xVal = [str(v) for v in res.index.values]
+                resSorted = res
+            else:
+                resSorted = res.sort_values(by=[x])
+                xVal = resSorted[x]
 
             ax.scatter(resSorted[ys[0]], resSorted[ys[1]], label=yLabels[i])
         else:

@@ -19,7 +19,7 @@ argListPlots = [
         'required': False,
         'help': '',
         'possibilities': [
-            ('line', plotDemStats, [('yAxes', 'standard'),  ('pallets', 'shared'), ('logFile', 'shared'), ('yLabelsLine', 'shared'),
+            ('line', plotDemStats, [('yAxes', 'standard'),  ('pallets', 'shared'), ('logFile', 'shared'), ('yLabelsLine', 'standard'),
                                     ('ymin', 'shared'), ('ymax', 'shared'), ('joinYToLabel', 'standard')]),
             ('scatter', scaterThemPlots, [('ymin', 'shared'), ('ymax', 'shared'), ('logFile', 'shared'),
                                           ('yLabelsScatter', 'shared'), ('annotations', 'shared')]),
