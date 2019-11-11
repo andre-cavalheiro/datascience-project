@@ -27,7 +27,7 @@ def do_single_variable_analysis(filename, header = 0):
 	print("Nan count {}".format(nan_vars))
 	print("shape {}".format(df.shape))
 	print("size {}".format(df.size))
-	print("Class count {}".format(df.iloc[:,-1].value_counts()))
+	print("Class count {}".format((df.iloc[:,-1].value_counts())))
 	print(df.describe())
 
 do_single_variable_analysis('./data/data/proj/pd_speech_features.csv', header = 1)

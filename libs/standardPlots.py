@@ -128,6 +128,7 @@ def multipleYsLinePlot(ax, data, y_types, x_type, colors=[], labels=[], joinYToL
     :param x_type:  (str) Single header to be used as x, from output.csv
     :return:
     '''
+    
     assert(len(y_types)>0)
     if x_type == None or x_type == "index":
         x = [str(v) for v in data.index.values]
