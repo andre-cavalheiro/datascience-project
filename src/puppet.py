@@ -118,6 +118,9 @@ class Puppet:
 
         self.cluster_method.fit(x)
         y_pred = self.cluster_method.labels_
+        
+        if self.cluster_method.__class__.__name__ == 'KMeans':
+            extraInfo['inertia'] = self.cluster_method.inertia_ 
 
         return x, y, y_pred, extraInfo
 
@@ -125,6 +128,7 @@ class Puppet:
         print('--- Clustering Evaluation ---')
         results = cluster_metrics(x, y, y_pred)
 
+        results.update(extraInfo)
         printResultsToJson(results, self.outputDir)
 
     def trainClf(self, x_train, x_test, y_train, y_test, extraInfo):

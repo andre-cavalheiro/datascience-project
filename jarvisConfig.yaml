@@ -1,12 +1,12 @@
 name: test cluster
 optimize: False       # Turns optimizer mode on and off
-seq: True             # Turns sequential mode on and off
+seq: False             # Turns sequential mode on and off
 plot: ['seq']            # Plot modes to activate: single, seq, only
 conf: src/config.yaml
 confSeq: src/configSeq.yaml
 confPlot: plotConfig.yaml
 outputDir: src\output\
-debug: False
+debug: True
 optimizer:
   numTrials: 30
   numJobs: 1
