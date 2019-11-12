@@ -60,11 +60,12 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
             # Create plot
             # width = 1     # 0.1
             bpl = plt.boxplot(ySorted, positions=dislocatedX, sym='', widths=width)
-            set_box_color(bpl, colorPalletsBox[i])
+            set_box_color(bpl, colorPallets[i][j])
 
     # Associate label and color
-    for i, lab in enumerate(yLabels):
-        plt.plot([], c=colorPalletsBox[i], label=lab)
+    for i, res in enumerate(data):
+        for j, lab in enumerate(yLabels):
+            plt.plot([], c=colorPallets[i][j], label=lab)
     plt.legend()
 
     plt.xlabel(x)
@@ -135,6 +136,7 @@ def multipleYsLinePlot(ax, data, y_types, x_type, colors=[], labels=[], joinYToL
     :param x_type:  (str) Single header to be used as x, from output.csv
     :return:
     '''
+    
     assert(len(y_types)>0)
     if x_type == None or x_type == "index":
         x = [str(v) for v in data.index.values]

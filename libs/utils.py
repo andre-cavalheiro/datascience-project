@@ -61,8 +61,7 @@ def selectFuncAccordingToParams(config, argList):
     for a in argList:
         if 'possibilities' in a.keys() and len(a['possibilities']) is not 0:
             for p in a['possibilities']:
-
-                if a['name'] in config.keys() and p[0] == config[a['name']]:
+                if a['name'] in config.keys() and  p[0] == config[a['name']]:
                     config[a['name']] = p[1]
                     break
     return config
@@ -77,7 +76,6 @@ def selectParamsAccordingToFunctions(config, argList):
                     break
     return config
 
-
 def getTrialValuesFromConfig(trial, pconfig, argListPuppet):
     for arg in argListPuppet:
         trialVal = getTrialValues(trial, arg)
@@ -89,7 +87,6 @@ def getTrialValuesFromConfig(trial, pconfig, argListPuppet):
                     else pconfig[arg['name']][childArg['name']]
 
     return pconfig
-
 
 def getTrialValues(trial, arg):
     if 'optimize' in arg.keys() and arg['optimize']:
