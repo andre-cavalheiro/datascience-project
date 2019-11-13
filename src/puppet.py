@@ -89,15 +89,16 @@ class Puppet:
                                 results[key] = [val]
                         it += 1
 
-                    averagedResults = {}
+                    finalResults = {}
                     for key, vals in results.items():
                         if (isinstance(vals[0], int) or isinstance(vals[0], float)):
-                            averagedResults[key] = sum(vals) / len(vals)
                             valsWithoutNans = list(pd.Series(vals).fillna(method='ffill').fillna(method='bfill'))
-                            averagedResults[key + '_kfoldVals'] = valsWithoutNans
 
-                    printResultsToJson(averagedResults, self.outputDir)
-                    cost = (r['sensitivity'] + r['specificity']) / 2
+                            finalResults[key] = sum(vals) / len(vals)
+                            finalResults[key + '_kfoldVals'] = valsWithoutNans
+
+                    printResultsToJson(finalResults, self.outputDir)
+                    cost = (r['sensitivity'] + r['specificity']) / 2    # For optimization
                 else:
                     print('kfold param required for kfold split method')
                     exit()

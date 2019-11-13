@@ -1,141 +1,140 @@
 configs:
-   - name: KNN(euclidean, smote) - [weights, n_neighbors]
-     variationsWithin:
-       - name: classifierParams
-         subName: n_neighbors
-         values: [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
-       - name: classifierParams
-         subName: weights
-         values: [uniform, distance]
-     priorityLine: [weights, n_neighbors]
-     unifyByRecursionLevels: [1, 0]
-     changedToHigherDimPlot:
-       level: fetchCSV
-       pallets: True
-       joinYToLabel: [True, False, False]
-       yLabelsLine:  [['Uniform', 'Distance'],
+  - name: dT(smote, inf max_depth) - [criterion, max_depth]
+    variationsWithin:
+      - name: classifierParams
+        subName: criterion
+        values: [gini, entropy]
+      - name: classifierParams
+        subName: max_depth
+        values: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    priorityLine: [criterion, max_depth]
+    unifyByRecursionLevels: [1, 0]
+    changedToHigherDimPlot:
+      level: fetchCSV
+      pallets: True
+      joinYToLabel: [True, False, False]
+      yLabelsLine:  [['Gini', 'Entropy'],
+                     ['Gini', 'Entropy'],
+                     ['Gini', 'Entropy']]
+      yLabelsBox:  ['Gini', 'Entropy']
+      yLabelsScatter:  ['Gini', 'Entropy']
+    classifier: decisionTree
+    classifierParams:
+      criterion: 'gini'
+      max_depth: 2
+    dataset: 'src/data/pd_speech_features.csv'
+    classname: class
+    nanStrategy: most_frequent
+    balancingStrategy: smote
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    dataSplitMethod: 'kfold'
+    kFold: 10
+    clustering: False
+    patternMining: False
+    plotX: max_depth
+
+  - name: rF(inf max_depth, smote) - [criterion, n_estimators]
+    variationsWithin:
+      - name: classifierParams
+        subName: criterion
+        values: [gini, entropy]
+      - name: classifierParams
+        subName: n_estimators
+        values: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    priorityLine: [criterion, n_estimators]
+    unifyByRecursionLevels: [1, 0]
+    changedToHigherDimPlot:
+      level: fetchCSV
+      pallets: True
+      joinYToLabel: [True, False, False]
+      yLabelsLine:  [['Gini', 'Entropy'],
+                     ['Gini', 'Entropy'],
+                     ['Gini', 'Entropy']]
+      yLabelsBox:  ['Gini', 'Entropy']
+      yLabelsScatter:  ['Gini', 'Entropy']
+    classifier: randomForest
+    classifierParams:
+      criterion: ''
+    dataset: 'src/data/pd_speech_features.csv'
+    classname: class
+    nanStrategy: most_frequent
+    balancingStrategy: smote
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    dataSplitMethod: 'kfold'
+    kFold: 10
+    clustering: False
+    patternMining: False
+    plotX: n_estimators
+  - name: KNN(euclidean, smote) - [weights, n_neighbors]
+    variationsWithin:
+      - name: classifierParams
+        subName: n_neighbors
+        values: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+      - name: classifierParams
+        subName: weights
+        values: [uniform, distance]
+    priorityLine: [weights, n_neighbors]
+    unifyByRecursionLevels: [1, 0]
+    changedToHigherDimPlot:
+      level: fetchCSV
+      pallets: True
+      joinYToLabel: [True, False, False]
+      yLabelsLine:  [['Uniform', 'Distance'],
                      ['Uniform', 'Distance'],
                      ['Uniform', 'Distance']]
-       yLabelsBox:  ['Uniform', 'Distance']
-       yLabelsScatter:  ['Uniform', 'Distance']
-     classifier: KNN
-     classifierParams:
-       metric: 'euclidean'
-     dataset: 'src/data/covtype.data'
-     classname: class
-     nanStrategy: most_frequent
-     balancingStrategy: smote
-     rescaler: normalize
-     correlationThreshold: 1
-     PCA: False
-     dataSplitMethod: 'kfold'
-     kFold: 10
-     clustering: False
-     patternMining: False
-     plotX: 'n_neighbors'
+      yLabelsBox:  ['Uniform', 'Distance']
+      yLabelsScatter:  ['Uniform', 'Distance']
+    classifier: KNN
+    classifierParams:
+      metric: 'euclidean'
+    dataset: 'src/data/pd_speech_features.csv'
+    classname: class
+    nanStrategy: most_frequent
+    balancingStrategy: smote
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    dataSplitMethod: 'kfold'
+    kFold: 10
+    clustering: False
+    patternMining: False
+    plotX: 'n_neighbors'
 
-   - name: KNN(uniform, smote) - [distance, n_neighbors]
-     variationsWithin:
-       - name: classifierParams
-         subName: metric
-         values: [euclidean, chebyshev, manhattan]
-       - name: classifierParams
-         subName: n_neighbors
-         values: [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
-     priorityLine: [metric, n_neighbors]
-     unifyByRecursionLevels: [1, 0]
-     changedToHigherDimPlot:
-       level: fetchCSV
-       pallets: True
-       joinYToLabel: [True, False, False]
-       yLabelsLine:  [['Euclidean', 'Chebyshev', 'Manhattan'],
+  - name: KNN(uniform, smote) - [distance, n_neighbors]
+    variationsWithin:
+      - name: classifierParams
+        subName: metric
+        values: [euclidean, chebyshev, manhattan]
+      - name: classifierParams
+        subName: n_neighbors
+        values: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    priorityLine: [metric, n_neighbors]
+    unifyByRecursionLevels: [1, 0]
+    changedToHigherDimPlot:
+      level: fetchCSV
+      pallets: True
+      joinYToLabel: [True, False, False]
+      yLabelsLine:  [['Euclidean', 'Chebyshev', 'Manhattan'],
                      ['Euclidean', 'Chebyshev', 'Manhattan'],
                      ['Euclidean', 'Chebyshev', 'Manhattan']]
-       yLabelsBox:  ['Euclidean', 'Chebyshev', 'Manhattan']
-       yLabelsScatter:  ['Euclidean', 'Chebyshev', 'Manhattan']
-     classifier: KNN
-     classifierParams:
-       weights: uniform
-     dataset: 'src/data/covtype.data'
-     classname: class
-     nanStrategy: most_frequent
-     balancingStrategy: smote
-     rescaler: normalize
-     correlationThreshold: 1
-     PCA: False
-     dataSplitMethod: 'kfold'
-     kFold: 10
-     clustering: False
-     patternMining: False
-     plotX: 'n_neighbors'
-
-   - name: dT(smote, inf max_depth) - [criterion, max_depth]
-     variationsWithin:
-       - name: classifierParams
-         subName: criterion
-         values: [gini, entropy]
-       - name: classifierParams
-         subName: max_depth
-         values: [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
-     priorityLine: [criterion, max_depth]
-     unifyByRecursionLevels: [1, 0]
-     changedToHigherDimPlot:
-       level: fetchCSV
-       pallets: True
-       joinYToLabel: [True, False, False]
-       yLabelsLine:  [['Gini', 'Entrophy'],
-                     ['Gini', 'Entrophy'],
-                     ['Gini', 'Entrophy']]
-       yLabelsBox:  ['Gini', 'Entrophy']
-       yLabelsScatter:  ['Gini', 'Entrophy']
-     classifier: decisionTree
-     classifierParams:
-       criterion: 'gini'
-       max_depth: 2
-     dataset: 'src/data/covtype.data'
-     classname: class
-     nanStrategy: most_frequent
-     balancingStrategy: smote
-     rescaler: normalize
-     correlationThreshold: 1
-     PCA: False
-     dataSplitMethod: 'kfold'
-     kFold: 10
-     clustering: False
-     patternMining: False
-     plotX: max_depth
-
-   - name: rF(inf max_depth, smote) - [criterion, n_estimators]
-     variationsWithin:
-       - name: classifierParams
-         subName: criterion
-         values: [gini, entropy]
-       - name: classifierParams
-         subName: n_estimators
-         values: [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
-     priorityLine: [criterion, n_estimators]
-     unifyByRecursionLevels: [1, 0]
-     changedToHigherDimPlot:
-       level: fetchCSV
-       pallets: True
-       joinYToLabel: [True, False, False]
-       yLabelsLine:  [['Gini', 'Entrophy'],
-                     ['Gini', 'Entrophy'],
-                     ['Gini', 'Entrophy']]
-       yLabelsBox:  ['Gini', 'Entrophy']
-       yLabelsScatter:  ['Gini', 'Entrophy']
-     classifier: randomForest
-     classifierParams:
-       criterion: ''
-     dataset: 'src/data/covtype.data'
-     classname: class
-     nanStrategy: most_frequent
-     balancingStrategy: smote
-     rescaler: normalize
-     correlationThreshold: 1
-     PCA: False
-     dataSplitMethod: 'kfold'
-     kFold: 10
-     clustering: False
-     patternMining: False
-     plotX: n_estimators
+      yLabelsBox:  ['Euclidean', 'Chebyshev', 'Manhattan']
+      yLabelsScatter:  ['Euclidean', 'Chebyshev', 'Manhattan']
+    classifier: KNN
+    classifierParams:
+      weights: uniform
+    dataset: 'src/data/pd_speech_features.csv'
+    classname: class
+    nanStrategy: most_frequent
+    balancingStrategy: smote
+    rescaler: normalize
+    correlationThreshold: 1
+    PCA: False
+    dataSplitMethod: 'kfold'
+    kFold: 10
+    clustering: False
+    patternMining: False
+    plotX: 'n_neighbors'

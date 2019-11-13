@@ -12,6 +12,7 @@ features (since our features are naturally separated)
 
 - If we use PCA for dimensionality reduction we should talk in the report about the possibility of generalization error,
     which requires extra calculations which we decided not to no. (Remember elbow plot for PCA)
+    THEY DO WANT US TO APPLY PCA! EVALUATING SOME MEASURES OVER SEVERAL NUMBER OF Ks
 
 === Evaluation of the results ====
 

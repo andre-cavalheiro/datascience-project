@@ -37,6 +37,7 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
 
         for j, y in enumerate(ys):
             ySorted = resSorted[y]  # List of values correspondent correspondent to the fixed one
+
             ySorted = [ast.literal_eval(ySorted.values[j]) for j in range(len(ySorted))]     # convert string to list ( each one with several kfold values)
 
             max = xSorted.max() if type(xSorted[0]) is not str else len(xSorted)
@@ -49,7 +50,7 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
             if len(data) == 1:
                 delta = [0]
             if len(data) == 2:
-                delta = [-deltaValue, deltaValue]
+                delta = [-deltaValue*0.6, deltaValue*0.6]
             elif len(data) == 3:
                 delta = [-deltaValue, 0, deltaValue]
 
@@ -63,9 +64,9 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
             set_box_color(bpl, colorPallets[i][j])
 
     # Associate label and color
-    for i, res in enumerate(data):
-        for j, lab in enumerate(yLabels):
-            plt.plot([], c=colorPallets[i][j], label=lab)
+    assert(len(data)==len(yLabels))
+    for i, lab in enumerate(yLabels):
+            plt.plot([], c=colorPallets[i][0], label=lab)
     plt.legend()
 
     plt.xlabel(x)
@@ -178,7 +179,7 @@ def scaterThemPlotsNx(level, dir, x, ys, logFile, dpi, yLabelsScatter=None, ymin
         x_ = resSorted[ys[0]]
         y_ = resSorted[ys[1]]
         yLabels = yLabelsScatter if len(yLabelsScatter) == len(data) else [[''] for j in y_ for i in data]
-        ax.scatter(x_, y_, label=yLabels[i])
+        ax.scatter(x_, y_, label=yLabels[i], c=colorPallets[i][0])
         dists = []
         for x__, y__ in zip(x_, y_):
             d = distance((x__, y__), (0, 0))
@@ -274,7 +275,7 @@ def scaterThemPlots(level, dir, x, ys, logFile, dpi, yLabelsScatter, ymin=None, 
                 resSorted = res.sort_values(by=[x])
                 xVal = resSorted[x]
 
-            ax.scatter(resSorted[ys[0]], resSorted[ys[1]], label=yLabels[i])
+            ax.scatter(resSorted[ys[0]], resSorted[ys[1]], label=yLabels[i], c=colorPallets[i][0])
         else:
             ax.scatter(res[ys[0]], res[ys[1]], label=yLabels[i][0])
 
@@ -304,7 +305,7 @@ def scaterThemPlots(level, dir, x, ys, logFile, dpi, yLabelsScatter, ymin=None, 
 def fetchData(dir, level, logFile):
     if level == 'localCSV':
         csvLocation = join(dir, logFile)
-        data = pd.read_csv(csvLocation, sep='\t', index_col=0, encoding='utf-8')
+        data = pd.read_csv(csvLocation, sep=',', index_col=0, encoding='utf-8')
         data = [data]
     elif level == 'fetchCSV':
         data = fetchLogsFromDirs(logFile, dir)
@@ -319,7 +320,7 @@ def fetchLogsFromDirs(logFile, dir):
     for subdir, dirs, files in walk(dir):
         for f in dirs:
             outFile = join(subdir, f, logFile)
-            data = pd.read_csv(outFile, sep='\t', index_col=0, encoding='utf-8')
+            data = pd.read_csv(outFile, sep=',', index_col=0, encoding='utf-8')
             results.append(data)
         break  # Only apply recursivness once
     return results

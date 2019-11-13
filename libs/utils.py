@@ -196,7 +196,7 @@ def unifyJsonYamlOutputsIntoCSV(dir, logFile='logs.json', configFile='config.yam
                 datasetCols[t[0]] = [t[1]]
 
     unified_results = pd.DataFrame(data=datasetCols)
-    unified_results.to_csv("{}/output.csv".format(dir), sep='\t', encoding='utf-8')
+    unified_results.to_csv("{}/output.csv".format(dir), sep=',', encoding='utf-8')
 
     return unified_results
 

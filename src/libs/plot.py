@@ -42,7 +42,7 @@ def sparsity(data, file = None):
 
 def sens_spec_scatter(inputF, file=None, name="Sensitivity and Sensitivity", sensLabel = 'sensitivity', \
 						specLabel = 'specificity', label = 'balancingStrategy'):
-	data = pd.read_csv(inputF,  sep='\t', encoding='utf-8')
+	data = pd.read_csv(inputF,  sep=',', encoding='utf-8')
 	fig, ax = plt.subplots()
 
 	data = pd.read_csv("../data/pd_speech_features.csv", header=[0,1])
