@@ -23,9 +23,9 @@ def fixDataSetCov(df, label='class'):
         Transform dataset label into a boolean
     '''
     df = df.replace('na', np.nan)   # There's a way to do this right in read_csv
-    print('Transforming label into boolean')
+    print('Transforming label')
     df = df.rename({df.shape[1] - 1: label}, axis='columns')
-
+        
     # print(df.head(5))
     return df
 

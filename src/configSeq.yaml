@@ -1,20 +1,20 @@
 configs:
-    - name: Kmode
-      variationsWithin:
-        - name: clusterParams
-          subName: n_clusters
-          values: [2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
-      priorityLine: [n_clusters]
-      unifyByRecursionLevels: [1]
-      clustering: True
-      clusterFunction: kmeans
-      clusterParams:
-        n_clusters: 0
-      dataset: 'src/data/covtype.data'
-      classname: class
-      nanStrategy: most_frequent
-      rescaler: normalize
-      correlationThreshold: 1
-      PCA: False
-      patternMining: False
-      plotX: 'n_clusters'
+   - name: DBSCAN
+     variationsWithin:
+       - name: clusterParams
+         subName: eps
+         values: [3, 4, 5, 5.5, 6]
+     priorityLine: [eps]
+     unifyByRecursionLevels: [1]
+     clustering: True
+     clusterFunction: dbscan
+     clusterParams: 
+       eps: 0
+     dataset: 'src/data/pd_speech_features.csv'
+     classname: class
+     nanStrategy: most_frequent
+     rescaler: normalize
+     correlationThreshold: 1
+     PCA: False
+     patternMining: False
+     plotX: 'eps'

@@ -10,7 +10,7 @@ dpi: 500
 
 #ys: [[['ad_rand_score'], ['silhouette']]]
 ys: [
-      [['inertia', 'ad_rand_score', 'silhouette'], ['inertia'], ['ad_rand_score', 'silhouette']]
+      [['ad_rand_score', 'silhouette']]
     ]
 
 
@@ -23,12 +23,12 @@ plotSeqParams:
   type: ['line']      # line, scatter scatterNx
   level: 'localCSV'
   # Shared
-  #ymax: 1.3
-  #ymin: 0
+  ymax: 1 
+  ymin: 0
   # Only Line
   # yLabelsLine: [['Sensitivity', 'Specificity'], [''], ['']]
   # yLabelsLine: [[''], ['']]
-  yLabelsLine: [['Inertia', 'Adj Rand Index', 'Silhouette'], ['Inertia'], ['Adj Rand Index', 'Silhouette']]
+  yLabelsLine: [['Adj Rand Index', 'Silhouette']]
   annotations: True
   # yAxes:  ['', 'Sensitivity', 'Specificity']
   yAxes:  ['', 'Inertia', '']

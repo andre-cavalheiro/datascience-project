@@ -7,6 +7,21 @@ from subprocess import call
 from sklearn.decomposition import PCA
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+from sklearn.neighbors import NearestNeighbors
+
+def eps_plot(data, file = None):
+	nn = NearestNeighbors(n_neighbors=2)
+	nbrs = nn.fit(data)
+	distances, indices = nbrs.kneighbors(data)
+	distances = np.sort(distances, axis = 0)
+	distances = distances[:,1]
+	plt.plot(distances)
+	plt.xlabel('Data Points')
+	plt.ylabel('Distances to Neighbors')
+	if(file == None):
+		plt.show()
+	else:
+		plt.savefig(file)
 
 def correlation_matrix(data, name, file = None, annotTreshold = 20):
 	annot = False if len(data.columns) > 20 else True
@@ -103,6 +118,3 @@ def pca_plot(data, predict, file = None, title=None):
 		plt.show()
 	else:
 		plt.savefig(file)
-
-#data = pd.read_csv("../data/pd_speech_features.csv", header=[1])
-#pca_plot(data,data['class'])
