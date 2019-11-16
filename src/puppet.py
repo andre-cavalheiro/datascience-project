@@ -45,8 +45,7 @@ class Puppet:
             #self.clf = self.linkFunctionToArgs('classifier','classifierParams')
 
             # todo - Dont know if i can/should balance a dataset with class non binary
-            if 'pd_speech_features' in self.args['dataset']:
-                x, y = self.args['balancingStrategy'](x, y)
+            x, y = self.args['balancingStrategy'](x, y)
 
             if self.args['dataSplitMethod'] == 'split':
                 print('Splitting dataset into train/test')
@@ -71,6 +70,9 @@ class Puppet:
 
                         x_train, x_test = x.iloc[train_index], x.iloc[test_index]
                         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+
+                        print('After fold split x train state: {}'.format(x_train.shape))
+                        print('After fold split x test state: {}'.format(x_test.shape))
 
                         x_train, y_train, x_test, y_test, extraInfo = self._postSplitPreprocessing(x_train, y_train, x_test,
                                                                                                    y_test)
@@ -104,15 +106,6 @@ class Puppet:
                     exit()
 
             return cost
-
-    #TODO: add this to JARVIS
-    def linkFunctionToArgs(self, funcName, argName):
-        if argName in self.args.keys() and self.args[argName] is not None:
-            new_func = self.args[funcName](**self.args[argName])
-        else:
-            new_func = self.args[funcName]()
-
-        return new_func
 
     def do_clustering(self, df, x, y, extraInfo):
         print('--- Clustering ---')
@@ -233,27 +226,40 @@ class Puppet:
 
     def _postSplitPreprocessing(self, x, y, xTest, yTest):
         print('Applying Pre-processing')
-        # todo - modify xTest and yTest
+
+        # Scaling
+        if 'rescaler' in self.args.keys() and type(self.args['rescaler']) != str:
+            x, xTest = self.args['rescaler'](x, xTest)  # normalize/standardize ....
 
         dropedCols = None
-        # PCA and scaling
-        # fixme - not sure if this should be here, make sure before using.
+        # Feature select
         if 'PCA' in self.args.keys() and self.args['PCA'] and 'percComponentsPCA' in self.args.keys():
             numComponents = int(self.args['percComponentsPCA']*x.shape[1])
             x = (x.
-                 pipe(StandardScaler).   # normalize/standardize ....
+                 pipe(StandardScaler).   # fixme - it's called before as well, not sure when it should
                  pipe(applyPCA, numComponents))
 
-        # Correlation threshold and scaling
-        elif self.args['correlationThreshold'] != 1:
-            x, dropedCols = dropHighCorrFeat(x, max_corr=self.args['correlationThreshold'])
-            if 'rescaler' in self.args.keys() and type(self.args['rescaler']) != str:
-                x = self.args['rescaler'](x)    # normalize/standardize ....
+        elif 'featureFunction' in self.args.keys() and 'featuresToKeepPercentage' in self.args.keys() \
+                and self.args['featureFunction'] != '':
+            print('Applying feature selection')
 
-        print('Treatment done, final x state: {}'.format(x.shape))
+            x, dropedCols = getBestFeatures(x, y, self.args['featureFunction'], self.args['featuresToKeepPercentage'])
+            xTest = xTest.drop(dropedCols, axis=1)
+            print('x Train state: {}'.format(x.shape))
+            print('Test state: {}'.format(xTest.shape))
+
+        elif 'correlationThreshold' in self.args.keys() and self.args['correlationThreshold'] != 1:
+            print('Applying corr threshold')
+            x, dropedCols = dropHighCorrFeat(x, max_corr=self.args['correlationThreshold'])
+            xTest = xTest.drop(dropedCols, axis=1)
+            print('x Train state: {}'.format(x.shape))
+            print('Test state: {}'.format(xTest.shape))
 
         # n = 'correlation threshold: {}'.format(self.args<['correlationThreshold'])
         # correlation_matrix(x, n, join(self.outputDir, 'Correlation Mattrix.png'), annotTreshold=20)
+
+        print('Treatment done, final x Train state: {}'.format(x.shape))
+        print('Treatment done, final x Test state: {}'.format(xTest.shape))
 
         extraInfo = {'dropedCols': dropedCols} if dropedCols is not None else {}
 

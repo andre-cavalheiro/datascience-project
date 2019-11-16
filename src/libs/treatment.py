@@ -72,14 +72,18 @@ def standardize(x):
     # print(x_stand.head(5))
     return x_stand
 
-def normalize(x):
+def normalize(x, x_test=None):
     print('Normalizing')
     columns = x.columns.values
     min_max_scaler = MinMaxScaler()
-    x_norm = min_max_scaler.fit_transform(x)
+    min_max_scaler.fit(x)
+    x_norm = min_max_scaler.transform(x)
     x_norm = pd.DataFrame(x_norm, columns=columns)
+    if x_test is not None:
+        x_test_norm = min_max_scaler.transform(x_test)
+        x_test_norm = pd.DataFrame(x_test_norm, columns=columns)
     # print(x_norm.head(5))
-    return x_norm
+    return x_norm, x_test_norm
 
 def standardizeRobust(x):
     print('Standardizing robust')
@@ -129,7 +133,7 @@ def dropHighCorrFeat(df, max_corr, n=None):
 
     return df, layers2drop
 
-def getTopCorrelations(df, n=None):
+def getTopCorrelations(df, n=None, method='pearson'):
     '''
     Returns the 'n' most correlated labels
 
@@ -137,7 +141,7 @@ def getTopCorrelations(df, n=None):
                    n - the number of top instances to return
     Returns:      a Series with the 'n' most correlated labels
     '''
-    corr_matrix = df.corr(method='spearman').abs()
+    corr_matrix = df.corr(method=method).abs()
     uperCorrMatrix = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
     sol = (uperCorrMatrix.stack())\
                 .sort_values(ascending=False)
@@ -145,7 +149,6 @@ def getTopCorrelations(df, n=None):
     	return sol[0:n]
     else:
     	return sol
-
 
 #TODO auto discover non-real cols
 def discretize(df, n = 3, type = "cut"):
@@ -168,3 +171,46 @@ def dummify(df):
         dummylist.append(pd.get_dummies(df[[att]]))
     dummi_df = pd.concat(dummylist, axis=1)
     return dummi_df
+
+
+def getBestFeatures(x, y, algorithm, percentToKeep=None, threshold=None, minLevelOfSignificance=0.05):
+    print('Selecting best attributes according to ', str(algorithm))
+    print('Current x state: ', x.shape)
+
+    '''
+    # Loggind removed columns and investigating significance levels.
+    
+    scores, pval = algorithm(x, y)
+
+    info = []
+    for i in range(x.shape[1]):
+            info.append([x.columns[i], scores[i], pval[i]])
+
+    info = sorted(info, key=lambda x: x[1], reverse=True)   # sort by scores
+
+    print('Applying threshold of ', threshold, ' and a min level os significance of', minLevelOfSignificance)
+    dropedCols = []
+    for attr in info:
+        extraStr = ''
+        if attr[1] <= threshold and attr[2] <= minLevelOfSignificance:
+            dropedCols.append([attr[0], attr[1]])
+            x = x.drop(columns=[attr[0]])
+            extraStr = ' (droped)'
+        print(attr[0], '-', attr[1], '-', attr[2], extraStr)
+
+    '''
+    k = int(percentToKeep*x.shape[1])
+    print('Droping', x.shape[1]-k, 'attributes')
+    selector = SelectKBest(algorithm, k=k)
+    selector.fit(x, y)
+    mask = selector.get_support(indices=True)
+    dropedCols = []
+    for i in range(len(x.columns)):
+        if i not in mask:
+            dropedCols.append(x.columns[i])
+    print(dropedCols)
+    x = x.iloc[:, mask]
+
+    print('New x: ', x.shape)
+
+    return x, dropedCols

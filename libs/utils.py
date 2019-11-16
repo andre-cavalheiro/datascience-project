@@ -2,7 +2,6 @@ import argparse
 from os.path import join
 from os import walk
 import random, string
-from pathlib import Path
 import json
 import pandas as pd
 import yaml
@@ -17,7 +16,7 @@ def getConfiguration(configFile):
     return params
 
 # Dump yaml
-def dumpConfiguration(configDict, direcotry, unfoldConfigWith=None):
+def dumpConfiguration(configDict, direcotry, unfoldConfigWith):
     if unfoldConfigWith:
         configDict = selectParamsAccordingToFunctions(configDict, unfoldConfigWith) # Reverse functions to its arg names
     t = join(direcotry, 'config.yaml')
@@ -74,6 +73,16 @@ def selectParamsAccordingToFunctions(config, argList):
                 if a['name'] in config.keys() and p[1] == config[a['name']]:
                     config[a['name']] = p[0]
                     break
+
+        '''if 'children' in a.keys() and len(a['children']) is not 0:
+            if a['name'] == 'ensembleParams':
+            for c in a['children']:
+                if 'possibilities' in c.keys() and len(c['possibilities']) is not 0:
+                    for pp in c['possibilities']:
+                        if c['name'] in config[a['name']].keys() and pp[1] == config[a['name']][c['name']]:
+                            config[a['name']][c['name']] = pp[0]
+                            break
+        '''
     return config
 
 def getTrialValuesFromConfig(trial, pconfig, argListPuppet):
@@ -309,6 +318,7 @@ def recursivelyRunPuppets(pipeline, iterator, pconfigs, prevDir, jconfig,
                 g = (e for e in argListPlots if e.get('name') == 'seqPlotTypes')
                 plotTypes = copy.deepcopy(next(g))
                 un = False
+
                 if seqConf['unifyByRecursionLevels'][iterator] == 1:
                     un = True
 

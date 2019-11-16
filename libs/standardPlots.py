@@ -6,7 +6,6 @@ from matplotlib import colors as mcolors
 import networkx as nx
 import numpy as np
 from math import sqrt, log10
-from matplotlib.font_manager import FontProperties
 import ast
 
 colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
@@ -25,6 +24,8 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
     yAxes = yAxesBox
     data = fetchData(dir, level, logFile)
 
+
+
     fig, ax = plt.subplots()
 
     for i, res in enumerate(data):
@@ -33,33 +34,37 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
             resSorted = res
         else:
             resSorted = res.sort_values(by=[x])
-            xSorted = resSorted[x]
+            xSorted = resSorted[x] if type(resSorted[x][0]) is not str else list(range(len(resSorted[x])))
+            xSymbolic = list(range(len(resSorted[x])))  # Assumes they're all equally distant!
 
         for j, y in enumerate(ys):
             ySorted = resSorted[y]  # List of values correspondent correspondent to the fixed one
-
             ySorted = [ast.literal_eval(ySorted.values[j]) for j in range(len(ySorted))]     # convert string to list ( each one with several kfold values)
 
+            '''
             max = xSorted.max() if type(xSorted[0]) is not str else len(xSorted)
             numDataPoints = len(xSorted)
             boxesPerDataPoint = len(data)
             distBetweenDataPoints = max/numDataPoints
             deltaValue = distBetweenDataPoints/boxesPerDataPoint
             width = deltaValue/3
-
+            '''
             if len(data) == 1:
+                width = 0.3
                 delta = [0]
             if len(data) == 2:
-                delta = [-deltaValue*0.6, deltaValue*0.6]
+                width = 0.3
+                deltaValue = 0.5
+                delta = [-deltaValue, deltaValue]
             elif len(data) == 3:
+                width = 0.1
+                deltaValue = 0.3
                 delta = [-deltaValue, 0, deltaValue]
 
             # Move plots to the sides
-            xValues = xSorted if type(xSorted[0]) is not str else list(range(len(xSorted)))
-            dislocatedX = [z+delta[i] for z in xValues] if delta else xValues
+            dislocatedX = [z+delta[i] for z in xSymbolic] if delta else xSymbolic
 
             # Create plot
-            # width = 1     # 0.1
             bpl = plt.boxplot(ySorted, positions=dislocatedX, sym='', widths=width)
             set_box_color(bpl, colorPallets[i][j])
 
@@ -75,10 +80,12 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
 
     # X axis:
     xAxis = [str(j) for j in xSorted]
-    plt.xticks(xValues, xAxis)
+    plt.xticks(xSymbolic, xAxis)
+    # plt.xticks(xSorted.values, xAxis)
+    # plt.xticks(dislocatedX, xAxis)
 
     # Increase x minimum to catch a bit more on the left
-    xmin = xValues[0]-np.diff(xValues)[0]
+    xmin = xSorted.iloc[0]-np.diff(xSorted)[0]
     ax.set_xlim(left=xmin)
 
     if ymin is not None:

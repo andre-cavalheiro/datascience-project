@@ -1,9 +1,9 @@
-name: experiment
+name: feat select
 optimize: False       # Turns optimizer mode on and off
 seq: True             # Turns sequential mode on and off
 plot: ['seq']            # Plot modes to activate: single, seq, only
 conf: src/config.yaml
-confSeq: src/configSeqCluster.yaml
+confSeq: src/configSeqFeatureSelec.yaml
 confPlot: plotConfig.yaml
 outputDir: src\output\
 debug: False

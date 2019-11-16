@@ -1,17 +1,16 @@
 seqLogConversion: 'yaml,json-Csv'
 logFile: output.csv
 dpi: 500
-#ys: [
-#      [['sensitivity', 'specificity'], ['sensitivity'], ['specificity']],
-#      [['sensitivity', 'specificity']],
-     # [['sensitivity', 'specificity']],
-#      [['sensitivity_kfoldVals'], ['specificity_kfoldVals']]
-#    ]
+ys: [
+      [['sensitivity', 'specificity'], ['sensitivity'], ['specificity']],
+      [['sensitivity', 'specificity']],
+      [['sensitivity_kfoldVals'], ['specificity_kfoldVals']]
+    ]
 
 #ys: [[['ad_rand_score'], ['silhouette']]]
-ys: [
-      [['inertia', 'ad_rand_score', 'silhouette'], ['inertia'], ['ad_rand_score', 'silhouette']]
-    ]
+#ys: [
+#      [['inertia', 'ad_rand_score', 'silhouette'], ['inertia'], ['ad_rand_score', 'silhouette']]
+#    ]
 
 
 plotSingleParams:
@@ -20,52 +19,53 @@ plotSingleParams:
   yAxes: ['Sensitivity', 'Specificity']
 
 plotSeqParams:
-  type: ['line']      # line, scatter scatterNx
+  type: ['line', 'scatter', 'box']      # line, scatter scatterNx
   level: 'localCSV'
   # Shared
-  #ymax: 1.3
-  #ymin: 0
+  ymax: 1.3
+  ymin: 0
+
   # Only Line
-  # yLabelsLine: [['Sensitivity', 'Specificity'], [''], ['']]
+  yLabelsLine: [['Sensitivity', 'Specificity'], [''], ['']]
   # yLabelsLine: [[''], ['']]
-  yLabelsLine: [['Inertia', 'Adj Rand Index', 'Silhouette'], ['Inertia'], ['Adj Rand Index', 'Silhouette']]
+  # yLabelsLine: [['Inertia', 'Adj Rand Index', 'Silhouette'], ['Inertia'], ['Adj Rand Index', 'Silhouette']]
+
   annotations: True
-  # yAxes:  ['', 'Sensitivity', 'Specificity']
-  yAxes:  ['', 'Inertia', '']
+  yAxes:  ['', 'Sensitivity', 'Specificity']
+  # yAxes:  ['', 'Inertia', '']
 
   pallets: False
 
   # OnlyScatter
-  yLabelsScatter: ['']
+  yLabelsScatter: ['Sensitivity', 'Specificity']
   distanceToLabel: 0.15
 
   # Only Box
   yLabelsBox: ['']
   yAxesBox: ['Sensitivity', 'Specificity']
 
+
+x: featuresToKeepPercentage # only used for plot only mode.
+
 plotOnlyParams:
-  dir: 'speech\knn(uniform, chebychev) - balancing - n_neighbors'
-  type: ['scatter', 'scatterNx', 'box']    # line, scatter, scatterNx
-  level: 'fetchCSV'    # localCSV, fetchCSV
+  level: fetchCSV
+  dir: 'seq - feat select-10\dT(smote, gini, max depth=10) [feat select]'
+  type: ['line', 'scatter', 'box']    # line, scatter, scatterNx
   # Shared
   ymax: 1.3
   ymin: 0
   # Only Line
-  yLabelsLine: ['Not Balanced', 'Randomly Undersample', 'SMOTE'] # fixme - careful with the order of directories
   annotations: True
+  joinYToLabel: [True, False, False]
+  yLabelsLine:  [['F function', 'Chi2', 'F regression'], ['F function', 'Chi2', 'F regression'],
+                 ['F function', 'Chi2', 'F regression']]
   yAxes:  ['', 'Sensitivity', 'Specificity']
   pallets: True
-  joinYToLabel: [True, False, False]
+
   # OnlyScatter
-  yLabelsScatter: [['Not Balanced'], ['Randomly Undersample'], ['SMOTE']] # fixme - careful with the order of directories
   distanceToLabel: 0.15
+  yLabelsScatter: ['F function', 'Chi2', 'F regression']
+
+  yLabelsBox: ['F function', 'Chi2', 'F regression']
   yAxesBox:  ['Sensitivity', 'Specificity']
-
-
-
-# ['Not Balanced', 'Randomly Undersample', 'SMOTE']
-# ['chebyshev', 'euclidean', 'manhattan']
-# [['Sensitivity', 'Specificity'], [], []]
-# [['Accuracy Test set', 'Accuracy Train set']]
-# [['Entropy'], ['Gini']]
 
