@@ -4,6 +4,24 @@ from pandas.plotting import register_matplotlib_converters
 from sklearn.tree import export_graphviz
 import seaborn as sns
 from subprocess import call
+from sklearn.decomposition import PCA
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+from sklearn.neighbors import NearestNeighbors
+
+def eps_plot(data, file = None):
+	nn = NearestNeighbors(n_neighbors=2)
+	nbrs = nn.fit(data)
+	distances, indices = nbrs.kneighbors(data)
+	distances = np.sort(distances, axis = 0)
+	distances = distances[:,1]
+	plt.plot(distances)
+	plt.xlabel('Data Points')
+	plt.ylabel('Distances to Neighbors')
+	if(file == None):
+		plt.show()
+	else:
+		plt.savefig(file)
 
 def correlation_matrix(data, name, file = None, annotTreshold = 20):
 	annot = False if len(data.columns) > 20 else True
@@ -45,7 +63,6 @@ def sens_spec_scatter(inputF, file=None, name="Sensitivity and Sensitivity", sen
 	data = pd.read_csv(inputF,  sep=',', encoding='utf-8')
 	fig, ax = plt.subplots()
 
-	data = pd.read_csv("../data/pd_speech_features.csv", header=[0,1])
 	plt.xlabel('Sensitivity')
 	plt.ylabel('Specificity')
 
@@ -73,3 +90,31 @@ def decision_tree_visualizer(tree, dir, filename = "dtree", show = False):
 		plt.imshow(plt.imread(png_file))
 		plt.axis('off')
 		plt.show()
+
+def pca_plot(data, predict, file = None, title=None):
+	pca = PCA(n_components=3)
+	principalComponents = pca.fit_transform(data)
+
+	principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2', 'principal component 3'])
+	finalDf = pd.concat([principalDf, pd.DataFrame(predict)], axis=1)
+	finalDf.rename(columns={0: 'class'}, inplace=True)
+
+	fig = plt.figure(figsize = (8,8))
+	ax = fig.add_subplot(1,1,1,projection='3d') 
+	ax.set_xlabel('Principal Component 1', fontsize = 15)
+	ax.set_ylabel('Principal Component 2', fontsize = 15)
+	ax.set_zlabel('Principal Component 3', fontsize = 15)
+	ax.set_title(title, fontsize = 20)
+
+	targets = np.arange(len(np.unique(predict)))
+	for target in targets:
+		indicesToKeep = finalDf['class'] == target
+		ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1'], finalDf.loc[indicesToKeep, 'principal component 2'] , zs= finalDf.loc[indicesToKeep, 'principal component 3'] , s = 50)
+
+	ax.legend(targets)
+	ax.grid()
+
+	if(file == None):
+		plt.show()
+	else:
+		plt.savefig(file)

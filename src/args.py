@@ -8,6 +8,7 @@ from src.libs.treatment import *    # fixme !!! should not have src
 from sklearn.cluster import KMeans, AgglomerativeClustering, MiniBatchKMeans, DBSCAN, SpectralClustering, AffinityPropagation, Birch,MeanShift
 from sklearn.mixture import GaussianMixture
 from sklearn.feature_selection import f_classif, chi2, f_regression
+from kmodes.kprototypes import KPrototypes
 
 argListPuppet = [
     {
@@ -140,6 +141,7 @@ argListPuppet = [
             ('birch', Birch),
             ('GaussianMixture', GaussianMixture),
             ('meanShift', MeanShift),
+            ('kprototypes', KPrototypes),
         ]
     },
     {

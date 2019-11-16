@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 name: feat select
+=======
+name: DBscan vary eps
+>>>>>>> d66bb88e843cba7e6947a7b1f821602b103a4db4
 optimize: False       # Turns optimizer mode on and off
 seq: True             # Turns sequential mode on and off
 plot: ['seq']            # Plot modes to activate: single, seq, only
 conf: src/config.yaml
+<<<<<<< HEAD
 confSeq: src/configSeqFeatureSelec.yaml
+=======
+confSeq: src/configSeq.yaml
+>>>>>>> d66bb88e843cba7e6947a7b1f821602b103a4db4
 confPlot: plotConfig.yaml
 outputDir: src\output\
 debug: False

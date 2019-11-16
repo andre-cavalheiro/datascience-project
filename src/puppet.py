@@ -109,10 +109,13 @@ class Puppet:
 
     def do_clustering(self, df, x, y, extraInfo):
         print('--- Clustering ---')
+        x = self.args['rescaler'](x)
+        if self.cluster_method.__class__.__name__ == 'KPrototypes':
+            self.cluster_method.fit(x, categorical = self.categorical_cols)
+        else:
+            self.cluster_method.fit(x)
 
-        self.cluster_method.fit(x)
         y_pred = self.cluster_method.labels_
-        
         if self.cluster_method.__class__.__name__ == 'KMeans':
             extraInfo['inertia'] = self.cluster_method.inertia_ 
 
@@ -122,8 +125,12 @@ class Puppet:
         print('--- Clustering Evaluation ---')
         results = cluster_metrics(x, y, y_pred)
 
+        #if self.cluster_method.__class__.__name__ == 'DBSCAN':
+        #    eps_plot(x, file = "eps.png")
+
         results.update(extraInfo)
         printResultsToJson(results, self.outputDir)
+
 
     def trainClf(self, x_train, x_test, y_train, y_test, extraInfo):
 
@@ -275,9 +282,11 @@ class Puppet:
 
         if 'pd_speech_features' in self.args['dataset']:
             df = pd.read_csv(self.args['dataset'], header=1,  sep=',', decimal='.')
+            self.categorical_cols = [0, 1] #id, gender
             fixFunction = fixDataSetSpeach
         elif 'covtype' in self.args['dataset']:
             df = pd.read_csv(self.args['dataset'], header=None, sep=',', decimal='.')
+            self.categorical_cols = [i for i in range(10, 54, 1)]
             fixFunction = fixDataSetCov
         return df, fixFunction
 
