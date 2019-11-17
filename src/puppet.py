@@ -34,11 +34,11 @@ class Puppet:
 
         if 'patternMining' in self.args.keys() and self.args['patternMining']:
             self.evaluatePatternMining(self.patternMining(df,x, y))      # Since no optimization is needed no return is necessary
-
+        
         elif 'clustering' in self.args.keys() and self.args['clustering']:
             self.cluster_method = self.linkFunctionToArgs('clusterFunction', 'clusterParams')
-            self.evaluate_clustering(*self.do_clustering(df, x, y, {}))
-
+            x, y, _, _, extraInfo = self._postSplitPreprocessing(x, y) #todo: little hacky but whatever
+            self.evaluate_clustering(*self.do_clustering(df, x, y, extraInfo))
         else:
             self.clf = defineClassifier(self.args['classifier'], self.args)
             # Run classifier
@@ -109,12 +109,13 @@ class Puppet:
 
     def do_clustering(self, df, x, y, extraInfo):
         print('--- Clustering ---')
-        x = self.args['rescaler'](x)
+        #x = self.args['rescaler'](x)
         if self.cluster_method.__class__.__name__ == 'KPrototypes':
             self.cluster_method.fit(x, categorical = self.categorical_cols)
         else:
             self.cluster_method.fit(x)
 
+        eps_plot(x, self.outputDir)    
         y_pred = self.cluster_method.labels_
         if self.cluster_method.__class__.__name__ == 'KMeans':
             extraInfo['inertia'] = self.cluster_method.inertia_ 
@@ -233,12 +234,15 @@ class Puppet:
 
         return df
 
-    def _postSplitPreprocessing(self, x, y, xTest, yTest):
+    def _postSplitPreprocessing(self, x, y, xTest = None, yTest = None):
         print('Applying Pre-processing')
 
         # Scaling
         if 'rescaler' in self.args.keys() and type(self.args['rescaler']) != str:
-            x, xTest = self.args['rescaler'](x, xTest)  # normalize/standardize ....
+            if xTest == None:
+                x = self.args['rescaler'](x)  # normalize/standardize ....
+            else:
+                x, xTest = self.args['rescaler'](x, xTest)  # normalize/standardize ....
 
         dropedCols = None
         # Feature select
@@ -253,22 +257,27 @@ class Puppet:
             print('Applying feature selection')
 
             x, dropedCols = getBestFeatures(x, y, self.args['featureFunction'], self.args['featuresToKeepPercentage'])
-            xTest = xTest.drop(dropedCols, axis=1)
+            if xTest != None:
+                xTest = xTest.drop(dropedCols, axis=1)
+                print('Test state: {}'.format(xTest.shape))
             print('x Train state: {}'.format(x.shape))
-            print('Test state: {}'.format(xTest.shape))
 
         elif 'correlationThreshold' in self.args.keys() and self.args['correlationThreshold'] != 1:
             print('Applying corr threshold')
             x, dropedCols = dropHighCorrFeat(x, max_corr=self.args['correlationThreshold'])
-            xTest = xTest.drop(dropedCols, axis=1)
+            
+            if xTest != None:
+                xTest = xTest.drop(dropedCols, axis=1)
+                print('Test state: {}'.format(xTest.shape))
+
             print('x Train state: {}'.format(x.shape))
-            print('Test state: {}'.format(xTest.shape))
 
         # n = 'correlation threshold: {}'.format(self.args<['correlationThreshold'])
         # correlation_matrix(x, n, join(self.outputDir, 'Correlation Mattrix.png'), annotTreshold=20)
 
         print('Treatment done, final x Train state: {}'.format(x.shape))
-        print('Treatment done, final x Test state: {}'.format(xTest.shape))
+        if xTest != None:
+            print('Treatment done, final x Test state: {}'.format(xTest.shape))
 
         extraInfo = {'dropedCols': dropedCols} if dropedCols is not None else {}
 
@@ -307,3 +316,11 @@ class Puppet:
             }
 
         printResultsToJson(results, self.outputDir)
+
+    def linkFunctionToArgs(self, funcName, argName):
+        if argName in self.args.keys() and self.args[argName] is not None:
+            new_func = self.args[funcName](**self.args[argName])
+        else:
+            new_func = self.args[funcName]()
+
+        return new_func

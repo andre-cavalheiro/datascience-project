@@ -9,7 +9,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
-def eps_plot(data, file = None):
+def eps_plot(data, dir, filename = "eps", title=None, show = False):
 	nn = NearestNeighbors(n_neighbors=2)
 	nbrs = nn.fit(data)
 	distances, indices = nbrs.kneighbors(data)
@@ -18,10 +18,11 @@ def eps_plot(data, file = None):
 	plt.plot(distances)
 	plt.xlabel('Data Points')
 	plt.ylabel('Distances to Neighbors')
-	if(file == None):
+	
+	if show:
 		plt.show()
 	else:
-		plt.savefig(file)
+		plt.savefig('{}/{}.png'.format(dir, filename))
 
 def correlation_matrix(data, name, file = None, annotTreshold = 20):
 	annot = False if len(data.columns) > 20 else True

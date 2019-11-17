@@ -22,7 +22,7 @@ plotSingleParams:
   yAxes: ['Sensitivity', 'Specificity']
 
 plotSeqParams:
-  type: ['line', 'scatter', 'box']      # line, scatter scatterNx
+  type: ['line']      # line, scatter scatterNx
   level: 'localCSV'
   # Shared
   #ymax: 1 

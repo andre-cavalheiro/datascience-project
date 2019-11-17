@@ -82,8 +82,9 @@ def normalize(x, x_test=None):
     if x_test is not None:
         x_test_norm = min_max_scaler.transform(x_test)
         x_test_norm = pd.DataFrame(x_test_norm, columns=columns)
+        return x_norm, x_test_norm
     # print(x_norm.head(5))
-    return x_norm, x_test_norm
+    return x_norm
 
 def standardizeRobust(x):
     print('Standardizing robust')
