@@ -147,6 +147,7 @@ def multipleYsLinePlot(ax, data, y_types, x_type, colors=[], labels=[], joinYToL
 
     maxNum = 0
     labelsToUse = labels if len(labels) == len(y_types) else ['' for y in y_types]   # fixme - labels[0]
+
     for i, y in enumerate(y_types):
         l = labelsToUse[i] + ' - {}'.format(y) if joinYToLabel else labelsToUse[i]
         if colors:

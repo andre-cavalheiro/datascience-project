@@ -125,6 +125,8 @@ class Puppet:
         y_pred = self.cluster_method.labels_
         if self.cluster_method.__class__.__name__ == 'KMeans':
             extraInfo['inertia'] = self.cluster_method.inertia_ 
+        
+        extraInfo['n_clusters'] = len(np.unique(y_pred))
 
         return x, y, y_pred, extraInfo
 
@@ -134,7 +136,7 @@ class Puppet:
 
         #if self.cluster_method.__class__.__name__ == 'DBSCAN':
         #    eps_plot(x, file = "eps.png")
-
+        pca_plot(x, y_pred, self.outputDir)    
         results.update(extraInfo)
         printResultsToJson(results, self.outputDir)
 

@@ -10,7 +10,7 @@ dpi: 500
 
 #ys: [[['ad_rand_score'], ['silhouette']]]
 ys: [
-      [['ad_rand_score', 'silhouette']]
+      [['ad_rand_score', 'silhouette'], ['n_clusters']]
     ]
 
 
@@ -23,15 +23,15 @@ plotSeqParams:
   type: ['line']      # line, scatter scatterNx
   level: 'localCSV'
   # Shared
-  ymax: 1 
-  ymin: 0
+  #ymax: 1 
+  #ymin: 0
   # Only Line
   # yLabelsLine: [['Sensitivity', 'Specificity'], [''], ['']]
   # yLabelsLine: [[''], ['']]
-  yLabelsLine: [['Adj Rand Index', 'Silhouette']]
+  yLabelsLine: [['Adj Rand Index', 'Silhouette'], ['n_clusters']]
   annotations: True
   # yAxes:  ['', 'Sensitivity', 'Specificity']
-  yAxes:  ['', 'Inertia', '']
+  yAxes:  ['', '', '']
 
   pallets: False
 
