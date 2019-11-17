@@ -101,6 +101,7 @@ else:
 
     if 'only' in jconfig['plot']:
         # Instead of running puppet, simply make some plots
+        # Get plot possibilities for selected mode
         print('=================================')
         print('===== Plot Priority Enabled =====')
         print('=== jarvis config plot = only ===')
@@ -165,57 +166,6 @@ else:
             pipelineValues = [t['values'] for t in pipeline]
             recursivelyRunPuppets(pipelineValues, 0, pconfigs, seqTestDir, jconfig,
                     plotConfig, argListPuppet, argListPlots, seqConf, names)
-
-            '''
-            # Todo - this should be recursive too!! right now it only allows 2 parameters to be varied
-            # assert(len(pipeline) == 2)    # just for now
-            it=0
-            
-            for var1 in pipelineValues[0]:
-                auxSeqTestDir = getWorkDir({'outputDir': seqTestDir}, '{} - {}'.format(pipeline[0]['name'], var1),
-                                           completedText=jconfig['successString'])
-                for var2 in pipelineValues[1]:
-                    pconfig = pconfigs[it]
-                    it+=1
-
-                    print("=== NEW INSTANCE ==  ")
-                    printDict(pconfig, statement="> Using args:")
-                    # Create output directory for instance inside sequential-test directory
-                    auxSeqTestDir2 = makeDir(auxSeqTestDir, 'testrun', completedText=jconfig['successString'])
-
-                    puppet = Puppet(pconfig, debug=jconfig['debug'], outputDir=auxSeqTestDir2)
-                    puppet.pipeline()
-                    dumpConfiguration(pconfig, auxSeqTestDir2, unfoldConfigWith=argListPuppet)
-
-                    if 'single' in jconfig['plot']:
-                        # Get plot possibilities for selected mode
-                        currentPlotConf = makePlotConf(plotConfig, 'plotSingleParams', seqConf)
-                        g = (e for e in argListPlots if e.get('name') == 'singlePlotTypes')
-                        plotTypes = next(g)
-                        makePrettyPlots(currentPlotConf, auxSeqTestDir2, plotTypes['possibilities'], unify=False)
-                    changeDirName(auxSeqTestDir2, extraText=jconfig['successString'])
-
-                if 'seq' in jconfig['plot']:
-                    # Get plot possibilities for selected mode
-                    currentPlotConf = makePlotConf(plotConfig, 'plotSeqParams', seqConf)
-                    g = (e for e in argListPlots if e.get('name') == 'seqPlotTypes')
-                    plotTypes = copy.deepcopy(next(g))
-                    makePrettyPlots(currentPlotConf, auxSeqTestDir, plotTypes['possibilities'], unify=True,
-                                    logFile='logs.json', configFile='config.yaml', unificationType=plotConfig['seqLogConversion'])
-                changeDirName(auxSeqTestDir, extraText=jconfig['successString'])
-
-            if 'seq' in jconfig['plot']:
-                # Get plot possibilities for selected mode
-                currentPlotConf = makePlotConf(plotConfig, 'plotSeqParams', seqConf)
-                g = (e for e in argListPlots if e.get('name') == 'seqPlotTypes')
-                plotTypes = copy.deepcopy(next(g))
-                for k, v in seqConf['changedToHigherDimPlot'].items():
-                    currentPlotConf[k] = v
-                un = False
-                makePrettyPlots(currentPlotConf, seqTestDir, plotTypes['possibilities'], unify=un)
-
-            changeDirName(seqTestDir, extraText=jconfig['successString'])
-            '''
 
         changeDirName(origDir, extraText=jconfig['successString'])
 

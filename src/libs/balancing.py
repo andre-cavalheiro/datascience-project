@@ -41,7 +41,7 @@ def smote(x, y, numMinorityIntances=False, label='class', falseLabel=False, true
 
     counts = y_bal.value_counts().to_dict()
     print('Transformed to - False instances: [{}] True instances: [{}]'.format(counts[falseLabel], counts[trueLabel]))
-    print('Transformed x state: ', x.shape)
+    print('Transformed x state: ', x_bal.shape)
 
     return x_bal, y_bal
 
@@ -75,7 +75,7 @@ def randomUnderSample(x, y, numMajorityIntances=False, label='class', falseLabel
 
     counts = y_bal.value_counts().to_dict()
     print('Transformed to - False instances: [{}] True instances: [{}]'.format(counts[falseLabel], counts[trueLabel]))
-    print('Transformed x state: ', x.shape)
+    print('Transformed x state: ', x_bal.shape)
 
     return x_bal, y_bal
 

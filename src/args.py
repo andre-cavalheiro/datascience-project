@@ -54,6 +54,17 @@ argListPuppet = [
         ]
     },
     {
+        'name': 'base_estimator',
+        'type': str,
+        'default': None,
+        'help': 'Possible parameters to be passed to the ensemble function.',
+        'required': False,
+        'possibilities':
+                [('KNN', KNeighborsClassifier),
+                ('naiveBays', GaussianNB),
+                ('decisionTree', DecisionTreeClassifier)]
+    },
+    {
         'name': 'nanStrategy',
         # possibilities are median, most_frequent, ''  -> the possibilities key should not be added since this isn't a
         # dynamic argument
