@@ -2,6 +2,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier, BaggingClassifier
+from xgboost import XGBClassifier
 
 
 def defineClassifier(clf, args):
@@ -39,6 +40,8 @@ def createVotingEnsemble(ensembleFunction, ensembleParams, clfParams):
                 clfs.append((c['name'], GaussianNB()))
             elif 'decisionTree' in c['name']:
                 clfs.append((c['name'], DecisionTreeClassifier(**{i:c[i] for i in c if i!='name'})))
+            elif 'XGBoost' in c['name']:
+                clfs.append((c['name'], XGBClassifier(**{i:c[i] for i in c if i!='name'})))
 
         votingClf = VotingClassifier(estimators=clfs, **ensembleParams)
         return votingClf

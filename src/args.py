@@ -2,6 +2,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier, BaggingClassifier
+from xgboost import XGBClassifier
+
 
 from src.libs.balancing import *    # fixme !!! should not have src
 from src.libs.treatment import *    # fixme !!! should not have src
@@ -31,7 +33,8 @@ argListPuppet = [
             ('decisionTree', DecisionTreeClassifier),
             ('randomForest', RandomForestClassifier),
             ('ensembleBagging', BaggingClassifier),
-            ('ensembleVoting', VotingClassifier)
+            ('ensembleVoting', VotingClassifier),
+            ('XGBoost', XGBClassifier)
         ]
     },
     {
@@ -50,7 +53,8 @@ argListPuppet = [
         },
             {
             'name': 'metric',
-        }
+        },
+        
         ]
     },
     {
@@ -84,6 +88,7 @@ argListPuppet = [
         'possibilities': [
             ('smote', smote),
             ('randUndersample', randomUnderSample),
+            ('randOversample', randomOverSample),
             ('clusterCentroidsUnderSample', clusterCentroidsUnderSample),
             ('notBalanced', notBalancing)],
         'optimize': False,
@@ -91,6 +96,7 @@ argListPuppet = [
             ('smote'),
             ('notBalanced'),
             ('randUndersample'),
+            ('randOversample'),
             # ('clusterCentroidsUnderSample'),
         ]
 
