@@ -30,11 +30,14 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
 
     for i, res in enumerate(data):
         if x == None or x == "index":
-            xSorted = pd.Series([str(v) for v in res.index.values])
+            xSorted = pd.Series([v for v in res.index.values])
             resSorted = res
+            xSymbolic = list(range(xSorted.size))  # Assumes they're all equally distant!
+
         else:
             resSorted = res.sort_values(by=[x])
             xSorted = resSorted[x] if type(resSorted[x][0]) is not str else list(range(len(resSorted[x])))
+
             xSymbolic = list(range(len(resSorted[x])))  # Assumes they're all equally distant!
 
         for j, y in enumerate(ys):
@@ -53,8 +56,8 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
                 width = 0.3
                 delta = [0]
             if len(data) == 2:
-                width = 0.3
-                deltaValue = 0.5
+                width = 0.1
+                deltaValue = 0.3
                 delta = [-deltaValue, deltaValue]
             elif len(data) == 3:
                 width = 0.1

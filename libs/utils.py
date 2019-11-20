@@ -240,7 +240,11 @@ def recursivelyBuildConfigs(pipeline, configs, argListPuppet, iterator=0):
         p = pipeline[0]
         for var in p['values']:
             if 'subName' in p.keys():
-                configs[p['name']][p['subName']] = var
+                if p['name'] in configs.keys():
+                    configs[p['name']][p['subName']] = var
+                else:
+                    configs[p['name']] = {}
+                    configs[p['name']][p['subName']] = var
             else:
                 configs[p['name']] = var
 
@@ -276,7 +280,8 @@ def recursivelyRunPuppets(pipeline, iterator, pconfigs, prevDir, jconfig,
             print("=== NEW INSTANCE ==  ")
             # printDict(pconfig, statement="> Using args:")
             # Create output directory for instance inside sequential-test directory
-            dir = makeDir(copy.copy(prevDir), names[iterator] + ' - {}'.format(var), completedText=jconfig['successString'])
+            n = names[iterator] + ' - {}'.format(var) if type(var) != type([]) else  names[iterator] + ' - {}'.format(var[0]['name'])
+            dir = makeDir(copy.copy(prevDir), n, completedText=jconfig['successString'])
 
             puppet = Puppet(copy.copy(pconfig), debug=jconfig['debug'], outputDir=dir)
             puppet.pipeline()

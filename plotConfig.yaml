@@ -1,14 +1,14 @@
 seqLogConversion: 'yaml,json-Csv'
 logFile: output.csv
 dpi: 500
-#ys: [
-#      [['sensitivity', 'specificity'], ['sensitivity'], ['specificity']],
-#      [['sensitivity', 'specificity']],
-#      [['sensitivity_kfoldVals'], ['specificity_kfoldVals']]
-#]
+ys: [
+      [['sensitivity', 'specificity'], ['sensitivity'], ['specificity']],
+      [['sensitivity', 'specificity']],
+      [['sensitivity_kfoldVals'], ['specificity_kfoldVals']]
+]
 
-ys: [['ad_rand_score', 'silhouette']]]
-#ys: [
+# ys: [['ad_rand_score', 'silhouette']]]
+# ys: [
 #      [['inertia', 'ad_rand_score', 'silhouette'], ['inertia'], ['ad_rand_score', 'silhouette']]
 #    ]
 
@@ -22,28 +22,27 @@ plotSeqParams:
   type: ['line', 'scatter', 'box']      # line, scatter scatterNx
   level: 'localCSV'
   # Shared
-<<<<<<< HEAD
   ymax: 1.3
   ymin: 0
 
   # Only Line
-  #yLabelsLine: [['Sensitivity', 'Specificity'], [''], ['']]
+  yLabelsLine: [['Sensitivity', 'Specificity'], [''], ['']]
   # yLabelsLine: [[''], ['']]
 
-  yLabelsLine: [['Adj Rand Index', 'Silhouette']]
   annotations: True
+  # yLabelsLine: [['Adj Rand Index', 'Silhouette']]
   yAxes:  ['', 'Sensitivity', 'Specificity']
   # yAxes:  ['', 'Inertia', '']
 
   pallets: False
 
   # OnlyScatter
-  yLabelsScatter: ['Sensitivity', 'Specificity']
+  yLabelsScatter: ['']
   distanceToLabel: 0.15
 
   # Only Box
   yLabelsBox: ['']
-  yAxesBox: ['Sensitivity', 'Specificity']
+  # yAxesBox: ['Sensitivity', 'Specificity']
 
 
 x: featuresToKeepPercentage # only used for plot only mode.

@@ -2,9 +2,9 @@ import pandas as pd
 from pyfpgrowth import find_frequent_patterns, generate_association_rules
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import SelectKBest, f_classif
+import numpy as np
 from sklearn.model_selection import train_test_split, KFold, StratifiedKFold
 from sklearn.model_selection import train_test_split
-import numpy as np
 
 from src.libs.pattern_mining import *
 from src.libs.evaluate import *
@@ -288,6 +288,9 @@ class Puppet:
             df = pd.read_csv(self.args['dataset'], header=None, sep=',', decimal='.')
             self.categorical_cols = [i for i in range(10, 54, 1)]
             fixFunction = fixDataSetCov
+        else:
+            print('Unkown dataset')
+            exit()
         return df, fixFunction
 
 

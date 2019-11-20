@@ -30,6 +30,7 @@ if clArgs['jc']:
     # Upgrade values if command line ones were passed
     for key in argsPassedJarvis:
         jconfig[key] = clArgs[key]
+
 # If no config file then use only command line args
 else:
     # Check if all required arguments have been passed
@@ -41,7 +42,7 @@ else:
         else:
             jconfig[arg['name']] = clArgs[arg['name']]
 
-# Attribute random name to test run if one wasn't provided
+# Attribute random name to test run if one wasn't provided  - todo remove??
 if 'name' not in jconfig.keys() or ('name' in jconfig.keys() and jconfig['name'] is None):
     jconfig['name'] = randomName(7)
 
