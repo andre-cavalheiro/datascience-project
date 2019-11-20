@@ -1,7 +1,7 @@
 import pandas as pd
 from collections import Counter
 from imblearn.under_sampling import RandomUnderSampler
-from imblearn.over_sampling import SMOTE
+from imblearn.over_sampling import SMOTE, RandomOverSampler
 from imblearn.under_sampling import ClusterCentroids
 import time
 
@@ -62,6 +62,39 @@ def randomUnderSample(x, y, numMajorityIntances=False, label='class', falseLabel
             1: numMajorityIntances
         }
         rus = RandomUnderSampler(random_state=int(time.time()), sampling_strategy=ratio)
+
+    x, y = rus.fit_resample(x, y)
+
+    x_bal = pd.DataFrame(x, columns=x_columns)
+    y_bal = pd.DataFrame(y, columns=[label])
+
+    # fixme - done in a stupid way
+    df = x_bal.join(y_bal)
+    y_bal = df.loc[:, label]
+    x_bal = df.drop(columns=[label])
+
+    counts = y_bal.value_counts().to_dict()
+    print('Transformed to - False instances: [{}] True instances: [{}]'.format(counts[falseLabel], counts[trueLabel]))
+    print('Transformed x state: ', x_bal.shape)
+
+    return x_bal, y_bal
+
+def randomOverSample(x, y, numMajorityIntances=False, label='class', falseLabel=False, trueLabel=True):
+    print('- Balancing with random over sampling')
+    print('Current x state: ', x.shape)
+
+    x_columns = x.columns.values
+    counts = y.value_counts().to_dict()
+    print('Currently False - instances: [{}] True instances: [{}]'.format(counts[falseLabel], counts[trueLabel]))
+
+    if numMajorityIntances == False:
+        rus = RandomOverSampler(random_state=int(time.time()))
+    else:
+        ratio = {
+            0: counts[False],
+            1: numMajorityIntances
+        }
+        rus = RandomOverSampler(random_state=int(time.time()), sampling_strategy=ratio)
 
     x, y = rus.fit_resample(x, y)
 

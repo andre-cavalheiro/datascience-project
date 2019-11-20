@@ -74,8 +74,7 @@ class Puppet:
                         print('After fold split x train state: {}'.format(x_train.shape))
                         print('After fold split x test state: {}'.format(x_test.shape))
 
-                        x_train, y_train, x_test, y_test, extraInfo = self._postSplitPreprocessing(x_train, y_train, x_test,
-                                                                                                   y_test)
+                        x_train, y_train, x_test, y_test, extraInfo = self._postSplitPreprocessing(x_train, y_train, x_test, y_test)
 
                         print('Training with x: {}'.format(x_train.shape))
                         x_train, y_train, x_test, y_test, y_predict, extraInfo, y_predict_train = \
@@ -239,7 +238,7 @@ class Puppet:
 
         # Scaling
         if 'rescaler' in self.args.keys() and type(self.args['rescaler']) != str:
-            if xTest == None:
+            if not xTest.empty:
                 x = self.args['rescaler'](x)  # normalize/standardize ....
             else:
                 x, xTest = self.args['rescaler'](x, xTest)  # normalize/standardize ....
@@ -276,7 +275,7 @@ class Puppet:
         # correlation_matrix(x, n, join(self.outputDir, 'Correlation Mattrix.png'), annotTreshold=20)
 
         print('Treatment done, final x Train state: {}'.format(x.shape))
-        if xTest != None:
+        if not xTest.empty:
             print('Treatment done, final x Test state: {}'.format(xTest.shape))
 
         extraInfo = {'dropedCols': dropedCols} if dropedCols is not None else {}
