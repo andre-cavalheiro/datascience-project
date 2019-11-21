@@ -24,4 +24,4 @@ percComponentsPCA: 0.7
 clusterFunction: dbscan
 clustering: False
 clusterParams:
-  eps: 5
+  n_clusters: 2

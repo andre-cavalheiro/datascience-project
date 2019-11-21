@@ -2,15 +2,15 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier, BaggingClassifier
-from xgboost import XGBClassifier
-
 
 from src.libs.balancing import *    # fixme !!! should not have src
 from src.libs.treatment import *    # fixme !!! should not have src
 from sklearn.cluster import KMeans, AgglomerativeClustering, MiniBatchKMeans, DBSCAN, SpectralClustering, AffinityPropagation, Birch,MeanShift
 from sklearn.mixture import GaussianMixture
 from sklearn.feature_selection import f_classif, chi2, f_regression
-from kmodes.kprototypes import KPrototypes
+#from kmodes.kprototypes import KPrototypes
+from sklearn.decomposition import PCA
+
 
 argListPuppet = [
     {
@@ -33,8 +33,7 @@ argListPuppet = [
             ('decisionTree', DecisionTreeClassifier),
             ('randomForest', RandomForestClassifier),
             ('ensembleBagging', BaggingClassifier),
-            ('ensembleVoting', VotingClassifier),
-            ('XGBoost', XGBClassifier)
+            ('ensembleVoting', VotingClassifier)
         ]
     },
     {
@@ -53,8 +52,7 @@ argListPuppet = [
         },
             {
             'name': 'metric',
-        },
-        
+        }
         ]
     },
     {
@@ -88,7 +86,6 @@ argListPuppet = [
         'possibilities': [
             ('smote', smote),
             ('randUndersample', randomUnderSample),
-            ('randOversample', randomOverSample),
             ('clusterCentroidsUnderSample', clusterCentroidsUnderSample),
             ('notBalanced', notBalancing)],
         'optimize': False,
@@ -96,7 +93,6 @@ argListPuppet = [
             ('smote'),
             ('notBalanced'),
             ('randUndersample'),
-            ('randOversample'),
             # ('clusterCentroidsUnderSample'),
         ]
 
@@ -147,7 +143,7 @@ argListPuppet = [
             ('birch', Birch),
             ('GaussianMixture', GaussianMixture),
             ('meanShift', MeanShift),
-            ('kprototypes', KPrototypes),
+            #('kprototypes', KPrototypes),
         ]
     },
     {
@@ -160,6 +156,7 @@ argListPuppet = [
             ('f_classif', f_classif),
             ('chi2', chi2),
             ('f_regression', f_regression),
+            ('PCA', PCA),
         ]
     },
     {

@@ -2,9 +2,10 @@ import pandas as pd
 from pyfpgrowth import find_frequent_patterns, generate_association_rules
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import SelectKBest, f_classif
+import numpy as np
 from sklearn.model_selection import train_test_split, KFold, StratifiedKFold
 from sklearn.model_selection import train_test_split
-import numpy as np
+from sklearn.decomposition import PCA
 
 from src.libs.pattern_mining import *
 from src.libs.evaluate import *
@@ -12,6 +13,7 @@ from src.libs.utils import *
 from src.libs.balancing import *
 from src.libs.treatment import *
 from src.libs.plot import *
+from libs.standardPlots import  *
 
 from src.args import *
 
@@ -34,11 +36,11 @@ class Puppet:
 
         if 'patternMining' in self.args.keys() and self.args['patternMining']:
             self.evaluatePatternMining(self.patternMining(df,x, y))      # Since no optimization is needed no return is necessary
-        
+
         elif 'clustering' in self.args.keys() and self.args['clustering']:
             self.cluster_method = self.linkFunctionToArgs('clusterFunction', 'clusterParams')
-            x, y, _, _, extraInfo = self._postSplitPreprocessing(x, y) #todo: little hacky but whatever
-            self.evaluate_clustering(*self.do_clustering(df, x, y, extraInfo))
+            self.evaluate_clustering(*self.do_clustering(df, x, y, {}))
+
         else:
             self.clf = defineClassifier(self.args['classifier'], self.args)
             # Run classifier
@@ -74,7 +76,8 @@ class Puppet:
                         print('After fold split x train state: {}'.format(x_train.shape))
                         print('After fold split x test state: {}'.format(x_test.shape))
 
-                        x_train, y_train, x_test, y_test, extraInfo = self._postSplitPreprocessing(x_train, y_train, x_test, y_test)
+                        x_train, y_train, x_test, y_test, extraInfo = self._postSplitPreprocessing(x_train, y_train, x_test,
+                                                                                                   y_test)
 
                         print('Training with x: {}'.format(x_train.shape))
                         x_train, y_train, x_test, y_test, y_predict, extraInfo, y_predict_train = \
@@ -98,7 +101,7 @@ class Puppet:
                             finalResults[key] = sum(vals) / len(vals)
                             finalResults[key + '_kfoldVals'] = valsWithoutNans
 
-                    printResultsToJson(finalResults, self.outputDir)
+                        printResultsToJson(finalResults, self.outputDir)
                     cost = (r['sensitivity'] + r['specificity']) / 2    # For optimization
                 else:
                     print('kfold param required for kfold split method')
@@ -108,18 +111,15 @@ class Puppet:
 
     def do_clustering(self, df, x, y, extraInfo):
         print('--- Clustering ---')
-        #x = self.args['rescaler'](x)
+        x = self.args['rescaler'](x)
         if self.cluster_method.__class__.__name__ == 'KPrototypes':
             self.cluster_method.fit(x, categorical = self.categorical_cols)
         else:
             self.cluster_method.fit(x)
 
-        eps_plot(x, self.outputDir)    
         y_pred = self.cluster_method.labels_
         if self.cluster_method.__class__.__name__ == 'KMeans':
             extraInfo['inertia'] = self.cluster_method.inertia_ 
-        
-        extraInfo['n_clusters'] = len(np.unique(y_pred))
 
         return x, y, y_pred, extraInfo
 
@@ -129,7 +129,7 @@ class Puppet:
 
         #if self.cluster_method.__class__.__name__ == 'DBSCAN':
         #    eps_plot(x, file = "eps.png")
-        pca_plot(x, y_pred, self.outputDir)    
+
         results.update(extraInfo)
         printResultsToJson(results, self.outputDir)
 
@@ -150,6 +150,18 @@ class Puppet:
         # Calculate evaluation measures
         results = evaluate(self.clf, x_train, y_train, x_test, y_test, y_predict, y_predict_train)
 
+        # Overfitting plot
+        '''fig, ax = plt.subplots()
+        data = self.args.copy()
+        data.update(results)
+        finalData = {}
+        for key, vals in results.items():
+            if (isinstance(vals[0], int) or isinstance(vals[0], float)):
+                finalData[key] = vals
+        y_types = [['accuracy', 'accuracyTrain']]
+        x_type = ['index']
+        multipleYsLinePlot(ax, pd.DataFrame.from_dict(finalData), y_types, x_type, colors=[], labels=[], joinYToLabel=None)
+        '''
 
         if 'saveModel' in self.args.keys() and self.args['saveModel']:
             saveModel(self.clf, self.outputDir)
@@ -233,15 +245,13 @@ class Puppet:
 
         return df
 
-    def _postSplitPreprocessing(self, x, y, xTest = None, yTest = None):
+    def _postSplitPreprocessing(self, x, y, xTest, yTest):
         print('Applying Pre-processing')
 
         # Scaling
         if 'rescaler' in self.args.keys() and type(self.args['rescaler']) != str:
-            if not xTest.empty:
-                x = self.args['rescaler'](x)  # normalize/standardize ....
-            else:
-                x, xTest = self.args['rescaler'](x, xTest)  # normalize/standardize ....
+            x, xTest = self.args['rescaler'](x, xTest)  # normalize/standardize ....
+
 
         dropedCols = None
         # Feature select
@@ -255,28 +265,26 @@ class Puppet:
                 and self.args['featureFunction'] != '':
             print('Applying feature selection')
 
-            x, dropedCols = getBestFeatures(x, y, self.args['featureFunction'], self.args['featuresToKeepPercentage'])
-            if xTest != None:
+            if self.args['featureFunction'] is PCA:
+                x, xTest = featSelectPCA(x, xTest, self.args['featuresToKeepPercentage'])
+            else:
+                x, dropedCols = getBestFeatures(x, y, self.args['featureFunction'], self.args['featuresToKeepPercentage'])
                 xTest = xTest.drop(dropedCols, axis=1)
-                print('Test state: {}'.format(xTest.shape))
             print('x Train state: {}'.format(x.shape))
+            print('Test state: {}'.format(xTest.shape))
 
         elif 'correlationThreshold' in self.args.keys() and self.args['correlationThreshold'] != 1:
             print('Applying corr threshold')
             x, dropedCols = dropHighCorrFeat(x, max_corr=self.args['correlationThreshold'])
-            
-            if xTest != None:
-                xTest = xTest.drop(dropedCols, axis=1)
-                print('Test state: {}'.format(xTest.shape))
-
+            xTest = xTest.drop(dropedCols, axis=1)
             print('x Train state: {}'.format(x.shape))
+            print('Test state: {}'.format(xTest.shape))
 
         # n = 'correlation threshold: {}'.format(self.args<['correlationThreshold'])
         # correlation_matrix(x, n, join(self.outputDir, 'Correlation Mattrix.png'), annotTreshold=20)
 
         print('Treatment done, final x Train state: {}'.format(x.shape))
-        if not xTest.empty:
-            print('Treatment done, final x Test state: {}'.format(xTest.shape))
+        print('Treatment done, final x Test state: {}'.format(xTest.shape))
 
         extraInfo = {'dropedCols': dropedCols} if dropedCols is not None else {}
 
@@ -298,6 +306,9 @@ class Puppet:
             df = pd.read_csv(self.args['dataset'], header=None, sep=',', decimal='.')
             self.categorical_cols = [i for i in range(10, 54, 1)]
             fixFunction = fixDataSetCov
+        else:
+            print('Unkown dataset')
+            exit()
         return df, fixFunction
 
 
@@ -315,11 +326,3 @@ class Puppet:
             }
 
         printResultsToJson(results, self.outputDir)
-
-    def linkFunctionToArgs(self, funcName, argName):
-        if argName in self.args.keys() and self.args[argName] is not None:
-            new_func = self.args[funcName](**self.args[argName])
-        else:
-            new_func = self.args[funcName]()
-
-        return new_func

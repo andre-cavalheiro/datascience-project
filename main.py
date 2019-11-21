@@ -30,6 +30,7 @@ if clArgs['jc']:
     # Upgrade values if command line ones were passed
     for key in argsPassedJarvis:
         jconfig[key] = clArgs[key]
+
 # If no config file then use only command line args
 else:
     # Check if all required arguments have been passed
@@ -41,7 +42,7 @@ else:
         else:
             jconfig[arg['name']] = clArgs[arg['name']]
 
-# Attribute random name to test run if one wasn't provided
+# Attribute random name to test run if one wasn't provided  - todo remove??
 if 'name' not in jconfig.keys() or ('name' in jconfig.keys() and jconfig['name'] is None):
     jconfig['name'] = randomName(7)
 
@@ -134,7 +135,6 @@ else:
                 del seqConf['variations']
             if 'variationsWithin' in seqConf.keys():
                 del seqConf['variationsWithin']
-
             variationNames = [v['name'] for v in variations] if variations is not None else []
             variationValues = {v['name']: v['values'] for v in variations} if variations is not None else []
             variationWithinNames = [v['subName'] for v in variationsWithin] if variationsWithin is not None else []

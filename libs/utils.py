@@ -137,14 +137,11 @@ def makePrettyPlots(config, dir, possibilities, unify=False, logFile='logs.json'
         types.append(p[0])
         funcs.append(p[1])
         args.append(p[2])
-
     # For every enabled mode make the plot
     for t, type in enumerate(config['type']):
         typeId = types.index(type)
-
         xSpecificType=config['x'][t]
         ysSpecificType=config['ys'][t]
-
         # Build common params between iterations and remove them from the other ones
         sharedParams = {a[0]: config[a[0]] for a in args[typeId] if a[1] == 'shared' if a[0] in config.keys()}
         toDeleteInd = [i for i, a in enumerate(args[typeId]) if a[0] in sharedParams.keys()]
@@ -154,6 +151,7 @@ def makePrettyPlots(config, dir, possibilities, unify=False, logFile='logs.json'
         # Plot
         for j in range(len(xSpecificType)):
             # Build iteration specific params
+
             params = {n[0]: config[n[0]][j] for n in args[typeId] if n[0] in config.keys()}
             funcs[typeId](x=xSpecificType[j], ys=ysSpecificType[j], dpi=config['dpi'], level=config['level'],
                           dir=dir, **params, **sharedParams)
@@ -240,7 +238,11 @@ def recursivelyBuildConfigs(pipeline, configs, argListPuppet, iterator=0):
         p = pipeline[0]
         for var in p['values']:
             if 'subName' in p.keys():
-                configs[p['name']][p['subName']] = var
+                if p['name'] in configs.keys():
+                    configs[p['name']][p['subName']] = var
+                else:
+                    configs[p['name']] = {}
+                    configs[p['name']][p['subName']] = var
             else:
                 configs[p['name']] = var
 
@@ -276,7 +278,8 @@ def recursivelyRunPuppets(pipeline, iterator, pconfigs, prevDir, jconfig,
             print("=== NEW INSTANCE ==  ")
             # printDict(pconfig, statement="> Using args:")
             # Create output directory for instance inside sequential-test directory
-            dir = makeDir(copy.copy(prevDir), names[iterator] + ' - {}'.format(var), completedText=jconfig['successString'])
+            n = names[iterator] + ' - {}'.format(var) if type(var) != type([]) else  names[iterator] + ' - {}'.format(var[0]['name'])
+            dir = makeDir(copy.copy(prevDir), n, completedText=jconfig['successString'])
 
             puppet = Puppet(copy.copy(pconfig), debug=jconfig['debug'], outputDir=dir)
             puppet.pipeline()
@@ -287,7 +290,12 @@ def recursivelyRunPuppets(pipeline, iterator, pconfigs, prevDir, jconfig,
                 currentPlotConf = makePlotConf(plotConfig, 'plotSingleParams', seqConf)
                 g = (e for e in argListPlots if e.get('name') == 'singlePlotTypes')
                 plotTypes = next(g)
-                makePrettyPlots(currentPlotConf, dir, plotTypes['possibilities'], unify=False)
+                # fixme - should not be harde coded
+
+                currentPlotConf['ys'] = currentPlotConf['ysSingle']
+                currentPlotConf['x'] = [[currentPlotConf['xSingle'] for p in currentPlotConf['ys']]]
+                makePrettyPlots(currentPlotConf, dir, plotTypes['possibilities'], unify=True, logFile='logs.json',
+                                configFile='config.yaml', unificationType=plotConfig['seqLogConversion'])
 
             changeDirName(dir, extraText=jconfig['successString'])
 

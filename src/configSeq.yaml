@@ -1,22 +1,20 @@
 configs:
-   - name: Kmeans
+   - name: DBSCAN
      variationsWithin:
        - name: clusterParams
          subName: eps
-         values: [0.05, 0.1, 0.15, 0.2]
+         values: [3, 4, 5, 5.5, 6]
      priorityLine: [eps]
      unifyByRecursionLevels: [1]
      clustering: True
      clusterFunction: dbscan
-     clusterParams:
+     clusterParams: 
        eps: 0
      dataset: 'src/data/pd_speech_features.csv'
      classname: class
      nanStrategy: most_frequent
      rescaler: normalize
-     correlationThreshold: 0.85
-     featureFunction: f_classif
-     featuresToKeepPercentage: 0.01
+     correlationThreshold: 1
      PCA: False
      patternMining: False
      plotX: 'eps'

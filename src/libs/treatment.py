@@ -60,6 +60,69 @@ def applyPCA(x, numComponentsToKeep):
     return x_transf
 
 
+def getBestFeatures(x, y, algorithm, percentToKeep=None, threshold=None, minLevelOfSignificance=0.05):
+    print('Selecting best attributes according to ', str(algorithm))
+    print('Current x state: ', x.shape)
+
+    '''
+    # Loggind removed columns and investigating significance levels.
+
+    scores, pval = algorithm(x, y)
+
+    info = []
+    for i in range(x.shape[1]):
+            info.append([x.columns[i], scores[i], pval[i]])
+
+    info = sorted(info, key=lambda x: x[1], reverse=True)   # sort by scores
+
+    print('Applying threshold of ', threshold, ' and a min level os significance of', minLevelOfSignificance)
+    dropedCols = []
+    for attr in info:
+        extraStr = ''
+        if attr[1] <= threshold and attr[2] <= minLevelOfSignificance:
+            dropedCols.append([attr[0], attr[1]])
+            x = x.drop(columns=[attr[0]])
+            extraStr = ' (droped)'
+        print(attr[0], '-', attr[1], '-', attr[2], extraStr)
+
+    '''
+    k = int(percentToKeep * x.shape[1])
+    print('Droping', x.shape[1] - k, 'attributes')
+    selector = SelectKBest(algorithm, k=k)
+    selector.fit(x, y)
+    mask = selector.get_support(indices=True)
+    dropedCols = []
+    for i in range(len(x.columns)):
+        if i not in mask:
+            dropedCols.append(x.columns[i])
+    print(dropedCols)
+    x = x.iloc[:, mask]
+
+    print('New x: ', x.shape)
+
+    return x, dropedCols
+
+
+def featSelectPCA(x, xTest, percentToKeep):
+
+    k = int(percentToKeep * x.shape[1])
+
+    print('Applying PCA, keeping {} components'.format(k))
+    print('Current x state: ', x.shape)
+
+    columns = ['Component {}'.format(i) for i in range(k)]
+    pca = PCA(n_components=k)
+    pca.fit(x)
+    principalComponents = pca.transform(x)
+    principalComponentsTest = pca.transform(xTest)
+
+    x_transf = pd.DataFrame(data=principalComponents,
+                               columns=columns)
+    x_transf_test = pd.DataFrame(data=principalComponentsTest,
+                               columns=columns)
+    return x_transf, x_transf_test
+
+
 def standardize(x):
     '''
      Standarlize data  (removing the mean and scaling to unit variance)
@@ -82,9 +145,8 @@ def normalize(x, x_test=None):
     if x_test is not None:
         x_test_norm = min_max_scaler.transform(x_test)
         x_test_norm = pd.DataFrame(x_test_norm, columns=columns)
-        return x_norm, x_test_norm
     # print(x_norm.head(5))
-    return x_norm
+    return x_norm, x_test_norm
 
 def standardizeRobust(x):
     print('Standardizing robust')
@@ -173,45 +235,3 @@ def dummify(df):
     dummi_df = pd.concat(dummylist, axis=1)
     return dummi_df
 
-
-def getBestFeatures(x, y, algorithm, percentToKeep=None, threshold=None, minLevelOfSignificance=0.05):
-    print('Selecting best attributes according to ', str(algorithm))
-    print('Current x state: ', x.shape)
-
-    '''
-    # Loggind removed columns and investigating significance levels.
-    
-    scores, pval = algorithm(x, y)
-
-    info = []
-    for i in range(x.shape[1]):
-            info.append([x.columns[i], scores[i], pval[i]])
-
-    info = sorted(info, key=lambda x: x[1], reverse=True)   # sort by scores
-
-    print('Applying threshold of ', threshold, ' and a min level os significance of', minLevelOfSignificance)
-    dropedCols = []
-    for attr in info:
-        extraStr = ''
-        if attr[1] <= threshold and attr[2] <= minLevelOfSignificance:
-            dropedCols.append([attr[0], attr[1]])
-            x = x.drop(columns=[attr[0]])
-            extraStr = ' (droped)'
-        print(attr[0], '-', attr[1], '-', attr[2], extraStr)
-
-    '''
-    k = int(percentToKeep*x.shape[1])
-    print('Droping', x.shape[1]-k, 'attributes')
-    selector = SelectKBest(algorithm, k=k)
-    selector.fit(x, y)
-    mask = selector.get_support(indices=True)
-    dropedCols = []
-    for i in range(len(x.columns)):
-        if i not in mask:
-            dropedCols.append(x.columns[i])
-    print(dropedCols)
-    x = x.iloc[:, mask]
-
-    print('New x: ', x.shape)
-
-    return x, dropedCols
