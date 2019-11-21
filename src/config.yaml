@@ -1,16 +1,16 @@
 # Main params
-dataset: 'src/data/pd_speech_features.csv'
+dataset: 'src/data/covtype.data'
 # dataset: 'src/data/covtype.data'
 classname: class
-classifier: decisionTree
+classifier: naiveBays
 # Preparation
 nanStrategy: most_frequent
-balancingStrategy: notBalanced
+balancingStrategy: randUndersample
 rescaler: normalize
 correlationThreshold: 1
 PCA: False
 dataSplitMethod: 'kfold'
-kFold: 10
+kFold: 5
 patternMining: False
 featureFunction: f_classif
 nFeatures: 10
@@ -22,6 +22,6 @@ miningParams:
 percComponentsPCA: 0.7
 # Functionality
 clusterFunction: dbscan
-clustering: True
+clustering: False
 clusterParams:
   eps: 5
