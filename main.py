@@ -135,7 +135,6 @@ else:
                 del seqConf['variations']
             if 'variationsWithin' in seqConf.keys():
                 del seqConf['variationsWithin']
-
             variationNames = [v['name'] for v in variations] if variations is not None else []
             variationValues = {v['name']: v['values'] for v in variations} if variations is not None else []
             variationWithinNames = [v['subName'] for v in variationsWithin] if variationsWithin is not None else []

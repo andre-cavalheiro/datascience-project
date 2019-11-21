@@ -108,13 +108,13 @@ def plotDemStats(level, dir, x, ys, logFile, yLabelsLine=[], yAxes='', ymin=None
 
     yLabels = yLabelsLine
     data = fetchData(dir, level, logFile)
-
     fig, ax = plt.subplots()
+
 
     # labelsToUse = yLabels if len(yLabels) == len(data) else ['' for i in data]
     for i, res in enumerate(data):
         shape = len(data) if len(data)==len(yLabels) else data[0].shape[0]
-        if len(yLabels) == shape:
+        if len(yLabels) == shape and shape != 0:
             # takes priority
             labels = [yLabels[i] for j,_ in enumerate(ys)]
         elif len(yLabels) == len(ys):

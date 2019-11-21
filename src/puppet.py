@@ -5,6 +5,7 @@ from sklearn.feature_selection import SelectKBest, f_classif
 import numpy as np
 from sklearn.model_selection import train_test_split, KFold, StratifiedKFold
 from sklearn.model_selection import train_test_split
+from sklearn.decomposition import PCA
 
 from src.libs.pattern_mining import *
 from src.libs.evaluate import *
@@ -12,6 +13,7 @@ from src.libs.utils import *
 from src.libs.balancing import *
 from src.libs.treatment import *
 from src.libs.plot import *
+from libs.standardPlots import  *
 
 from src.args import *
 
@@ -99,7 +101,7 @@ class Puppet:
                             finalResults[key] = sum(vals) / len(vals)
                             finalResults[key + '_kfoldVals'] = valsWithoutNans
 
-                    printResultsToJson(finalResults, self.outputDir)
+                        printResultsToJson(finalResults, self.outputDir)
                     cost = (r['sensitivity'] + r['specificity']) / 2    # For optimization
                 else:
                     print('kfold param required for kfold split method')
@@ -148,6 +150,18 @@ class Puppet:
         # Calculate evaluation measures
         results = evaluate(self.clf, x_train, y_train, x_test, y_test, y_predict, y_predict_train)
 
+        # Overfitting plot
+        '''fig, ax = plt.subplots()
+        data = self.args.copy()
+        data.update(results)
+        finalData = {}
+        for key, vals in results.items():
+            if (isinstance(vals[0], int) or isinstance(vals[0], float)):
+                finalData[key] = vals
+        y_types = [['accuracy', 'accuracyTrain']]
+        x_type = ['index']
+        multipleYsLinePlot(ax, pd.DataFrame.from_dict(finalData), y_types, x_type, colors=[], labels=[], joinYToLabel=None)
+        '''
 
         if 'saveModel' in self.args.keys() and self.args['saveModel']:
             saveModel(self.clf, self.outputDir)
@@ -238,6 +252,7 @@ class Puppet:
         if 'rescaler' in self.args.keys() and type(self.args['rescaler']) != str:
             x, xTest = self.args['rescaler'](x, xTest)  # normalize/standardize ....
 
+
         dropedCols = None
         # Feature select
         if 'PCA' in self.args.keys() and self.args['PCA'] and 'percComponentsPCA' in self.args.keys():
@@ -250,8 +265,11 @@ class Puppet:
                 and self.args['featureFunction'] != '':
             print('Applying feature selection')
 
-            x, dropedCols = getBestFeatures(x, y, self.args['featureFunction'], self.args['featuresToKeepPercentage'])
-            xTest = xTest.drop(dropedCols, axis=1)
+            if self.args['featureFunction'] is PCA:
+                x, xTest = featSelectPCA(x, xTest, self.args['featuresToKeepPercentage'])
+            else:
+                x, dropedCols = getBestFeatures(x, y, self.args['featureFunction'], self.args['featuresToKeepPercentage'])
+                xTest = xTest.drop(dropedCols, axis=1)
             print('x Train state: {}'.format(x.shape))
             print('Test state: {}'.format(xTest.shape))
 

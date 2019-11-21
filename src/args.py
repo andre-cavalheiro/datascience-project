@@ -9,6 +9,8 @@ from sklearn.cluster import KMeans, AgglomerativeClustering, MiniBatchKMeans, DB
 from sklearn.mixture import GaussianMixture
 from sklearn.feature_selection import f_classif, chi2, f_regression
 #from kmodes.kprototypes import KPrototypes
+from sklearn.decomposition import PCA
+
 
 argListPuppet = [
     {
@@ -154,6 +156,7 @@ argListPuppet = [
             ('f_classif', f_classif),
             ('chi2', chi2),
             ('f_regression', f_regression),
+            ('PCA', PCA),
         ]
     },
     {
