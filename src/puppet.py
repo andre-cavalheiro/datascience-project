@@ -200,21 +200,21 @@ class Puppet:
         params = {**default_values, **self.args['miningParams']} if 'miningParams' in self.args and \
                                                                     self.args['miningParams'] != None else default_values
         
-        # add defaults above to args.py
         # make flow here based on args (quick stuff)
         columns = SelectKBest(self.args['featureFunction'], k=self.args['nFeatures']).fit(x, y).get_support()
         new_x = x.loc[:,columns]
-        dummi_x = dummify(discretize(new_x, n = self.args['miningParams']['n'], type = self.args['typeMiningParams']))
+        #dummi_x = dummify(discretize(new_x, n = self.args['miningParams']['n'], type = self.args['typeMiningParams']))
+        dummi_x = dummify(discretize(new_x, n = params['n'], type = params['type']))
 
         freqs = get_frequent_itemsets(dummi_x, minsup = params['min_sup'], \
             iteratively_decreasing_support = params['iteratively_decreasing_support'], minpatterns = params['min_patterns'])
         assoc_rules = get_association_rules(freqs, metric = params['pattern_metric'], min_lift = params['min_lift'])
 
-        return assoc_rules
         #lab 6:
         #interesting_rules[(rules['antecedent_len']>=3 and rules['confidence'] >=0.9)][0:10]
         #for r in interesting_rules:
         #   print(f"confidence: {confidence} support: {support} lift: {lift})
+        return assoc_rules
         
         
         # Fixme - a good question would be to ask how to calculate the amount of memory needed according to the dataset

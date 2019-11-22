@@ -1,5 +1,5 @@
 # Main params
-dataset: 'src/data/covtype.data'
+dataset: 'src/data/pd_speech_features.csv'
 # dataset: 'src/data/covtype.data'
 classname: class
 classifier: naiveBays
@@ -11,14 +11,14 @@ correlationThreshold: 1
 PCA: False
 dataSplitMethod: 'kfold'
 kFold: 5
-patternMining: False
+patternMining: True
 featureFunction: f_classif
-nFeatures: 10
+nFeatures: 50
 saveModel: False
 plotX: n_neighbors
-miningParams:
-  supportThreshold: 2
-  supportConfidence: 0.8
+# miningParams:
+#   supportThreshold: 2
+#   supportConfidence: 0.8
 percComponentsPCA: 0.7
 # Functionality
 clusterFunction: dbscan
