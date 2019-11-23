@@ -1,11 +1,11 @@
-name: 2nd dataset kmeans 4pca 
+name: DS1PatternMining
 optimize: False       # Turns optimizer mode on and off
-seq: True            # Turns sequential mode on and off
+seq: False            # Turns sequential mode on and off
 plot: ['seq']            # Plot modes to activate: single, seq, only
 conf: src/config.yaml
-confSeq: src/configSeq.yaml
+confSeq: src/configSeq_RandForest.yaml
 confPlot: plotConfig.yaml
-outputDir: src\output\
+outputDir: src/output/
 debug: False
 optimizer:
   numTrials: 30

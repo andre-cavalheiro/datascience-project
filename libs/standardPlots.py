@@ -30,11 +30,14 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
 
     for i, res in enumerate(data):
         if x == None or x == "index":
-            xSorted = pd.Series([str(v) for v in res.index.values])
+            xSorted = pd.Series([v for v in res.index.values])
             resSorted = res
+            xSymbolic = list(range(xSorted.size))  # Assumes they're all equally distant!
+
         else:
             resSorted = res.sort_values(by=[x])
             xSorted = resSorted[x] if type(resSorted[x][0]) is not str else list(range(len(resSorted[x])))
+
             xSymbolic = list(range(len(resSorted[x])))  # Assumes they're all equally distant!
 
         for j, y in enumerate(ys):
@@ -53,8 +56,8 @@ def plotThemBoxes(level, dir, x, ys, logFile, yLabelsBox=[], ymin=None, ymax=Non
                 width = 0.3
                 delta = [0]
             if len(data) == 2:
-                width = 0.3
-                deltaValue = 0.5
+                width = 0.1
+                deltaValue = 0.3
                 delta = [-deltaValue, deltaValue]
             elif len(data) == 3:
                 width = 0.1
@@ -105,13 +108,13 @@ def plotDemStats(level, dir, x, ys, logFile, yLabelsLine=[], yAxes='', ymin=None
 
     yLabels = yLabelsLine
     data = fetchData(dir, level, logFile)
-
     fig, ax = plt.subplots()
+
 
     # labelsToUse = yLabels if len(yLabels) == len(data) else ['' for i in data]
     for i, res in enumerate(data):
         shape = len(data) if len(data)==len(yLabels) else data[0].shape[0]
-        if len(yLabels) == shape:
+        if len(yLabels) == shape and shape != 0:
             # takes priority
             labels = [yLabels[i] for j,_ in enumerate(ys)]
         elif len(yLabels) == len(ys):
@@ -154,7 +157,6 @@ def multipleYsLinePlot(ax, data, y_types, x_type, colors=[], labels=[], joinYToL
 
     maxNum = 0
     labelsToUse = labels if len(labels) == len(y_types) else ['' for y in y_types]   # fixme - labels[0]
-
     for i, y in enumerate(y_types):
         l = labelsToUse[i] + ' - {}'.format(y) if joinYToLabel else labelsToUse[i]
         if colors:
@@ -287,11 +289,11 @@ def scaterThemPlots(level, dir, x, ys, logFile, dpi, yLabelsScatter, ymin=None, 
         else:
             ax.scatter(res[ys[0]], res[ys[1]], label=yLabels[i][0])
 
-        '''
+        
         if annotations:
             for i, txt in enumerate(xVal):
                 ax.annotate(txt, (resSorted[ys[0]][i], resSorted[ys[1]][i]))
-        '''
+        
     plt.xlabel(ys[0])
     plt.ylabel(ys[1])
 

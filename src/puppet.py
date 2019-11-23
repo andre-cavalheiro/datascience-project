@@ -2,9 +2,10 @@ import pandas as pd
 from pyfpgrowth import find_frequent_patterns, generate_association_rules
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import SelectKBest, f_classif
+import numpy as np
 from sklearn.model_selection import train_test_split, KFold, StratifiedKFold
 from sklearn.model_selection import train_test_split
-import numpy as np
+from sklearn.decomposition import PCA
 
 from src.libs.pattern_mining import *
 from src.libs.evaluate import *
@@ -12,8 +13,10 @@ from src.libs.utils import *
 from src.libs.balancing import *
 from src.libs.treatment import *
 from src.libs.plot import *
+from libs.standardPlots import  *
 
 from src.args import *
+
 
 class Puppet:
     def __init__(self, args, debug, outputDir):
@@ -33,12 +36,13 @@ class Puppet:
         x = df.drop(columns=[self.args['classname']])
 
         if 'patternMining' in self.args.keys() and self.args['patternMining']:
-            self.evaluatePatternMining(self.patternMining(df,x, y))      # Since no optimization is needed no return is necessary
-        
-        elif 'clustering' in self.args.keys() and self.args['clustering']:
-            self.cluster_method = self.linkFunctionToArgs('clusterFunction', 'clusterParams')
             x, y = self.args['balancingStrategy'](x, y)
-            x, y, _, _, extraInfo = self._postSplitPreprocessing(x, y) #todo: little hacky but whatever
+            df = x.join(y)
+            self.evaluatePatternMining(self.patternMining(df,x, y))      # Since no optimization is needed no return is necessary
+
+        elif 'clustering' in self.args.keys() and self.args['clustering']:
+            x, y = self.args['balancingStrategy'](x, y)
+            x, y, _, _, extraInfo = self._unsupervisedPreprocessing(x, y) #todo: little hacky but whatever
             return self.evaluate_clustering(*self.do_clustering(df, x, y, {}))
         else:
             self.clf = defineClassifier(self.args['classifier'], self.args)
@@ -100,7 +104,7 @@ class Puppet:
                             finalResults[key] = sum(vals) / len(vals)
                             finalResults[key + '_kfoldVals'] = valsWithoutNans
 
-                    printResultsToJson(finalResults, self.outputDir)
+                        printResultsToJson(finalResults, self.outputDir)
                     cost = (r['sensitivity'] + r['specificity']) / 2    # For optimization
                 else:
                     print('kfold param required for kfold split method')
@@ -114,20 +118,15 @@ class Puppet:
         if 'epsP' in self.args.keys() and self.args['epsP']:
             eps_plot(x, self.outputDir)
             exit()
-
-
         if self.cluster_method.__class__.__name__ == 'KPrototypes':
             self.cluster_method.fit(x, categorical = self.categorical_cols)
         else:
             self.cluster_method.fit(x)
-        
-       
+
         y_pred = self.cluster_method.labels_
 
         if self.cluster_method.__class__.__name__ == 'KMeans':
             extraInfo['inertia'] = self.cluster_method.inertia_ 
-        
-        extraInfo['n_clusters'] = len(np.unique(y_pred))
 
         return x, y, y_pred, extraInfo
 
@@ -161,6 +160,18 @@ class Puppet:
         # Calculate evaluation measures
         results = evaluate(self.clf, x_train, y_train, x_test, y_test, y_predict, y_predict_train)
 
+        # Overfitting plot
+        '''fig, ax = plt.subplots()
+        data = self.args.copy()
+        data.update(results)
+        finalData = {}
+        for key, vals in results.items():
+            if (isinstance(vals[0], int) or isinstance(vals[0], float)):
+                finalData[key] = vals
+        y_types = [['accuracy', 'accuracyTrain']]
+        x_type = ['index']
+        multipleYsLinePlot(ax, pd.DataFrame.from_dict(finalData), y_types, x_type, colors=[], labels=[], joinYToLabel=None)
+        '''
 
         if 'saveModel' in self.args.keys() and self.args['saveModel']:
             saveModel(self.clf, self.outputDir)
@@ -199,21 +210,24 @@ class Puppet:
         params = {**default_values, **self.args['miningParams']} if 'miningParams' in self.args and \
                                                                     self.args['miningParams'] != None else default_values
         
-        # add defaults above to args.py
         # make flow here based on args (quick stuff)
+        
+        if self.args['featureFunction'] == chi2:
+            x,_ = normalize(x)
+
         columns = SelectKBest(self.args['featureFunction'], k=self.args['nFeatures']).fit(x, y).get_support()
         new_x = x.loc[:,columns]
-        dummi_x = dummify(discretize(new_x, n = self.args['miningParams']['n'], type = self.args['typeMiningParams']))
-
+        #dummi_x = dummify(discretize(new_x, n = self.args['miningParams']['n'], type = self.args['typeMiningParams']))
+        dummi_x = dummify(discretize(new_x, n = params['n'], type = params['type']))
         freqs = get_frequent_itemsets(dummi_x, minsup = params['min_sup'], \
             iteratively_decreasing_support = params['iteratively_decreasing_support'], minpatterns = params['min_patterns'])
-        assoc_rules = get_association_rules(freqs, metric = params['pattern_metric'], min_lift = params['min_lift'])
-
-        return assoc_rules
+        assoc_rules = get_association_rules(freqs, metric = params['pattern_metric'], min_conf = params['min_conf'], min_lift = params['min_lift'])
+        #assoc_rules.to_csv(self.outputDir+"/assoc_rules.csv")
         #lab 6:
         #interesting_rules[(rules['antecedent_len']>=3 and rules['confidence'] >=0.9)][0:10]
         #for r in interesting_rules:
         #   print(f"confidence: {confidence} support: {support} lift: {lift})
+        return assoc_rules
         
         
         # Fixme - a good question would be to ask how to calculate the amount of memory needed according to the dataset
@@ -244,7 +258,7 @@ class Puppet:
 
         return df
 
-    def _postSplitPreprocessing(self, x, y, xTest = None, yTest = None):
+      def _unsupervisedPreprocessing(self, x, y, xTest = None, yTest = None):
         print('Applying Pre-processing')
 
         # Scaling
@@ -294,6 +308,51 @@ class Puppet:
 
         return x, y, xTest, yTest, extraInfo
 
+    def _postSplitPreprocessing(self, x, y, xTest, yTest):
+        print('Applying Pre-processing')
+
+        # Scaling
+        if 'rescaler' in self.args.keys() and type(self.args['rescaler']) != str:
+            x, xTest = self.args['rescaler'](x, xTest)  # normalize/standardize ....
+
+
+        dropedCols = None
+        # Feature select
+        if 'PCA' in self.args.keys() and self.args['PCA'] and 'percComponentsPCA' in self.args.keys():
+            numComponents = int(self.args['percComponentsPCA']*x.shape[1])
+            x = (x.
+                 pipe(StandardScaler).   # fixme - it's called before as well, not sure when it should
+                 pipe(applyPCA, numComponents))
+
+        elif 'featureFunction' in self.args.keys() and 'featuresToKeepPercentage' in self.args.keys() \
+                and self.args['featureFunction'] != '':
+            print('Applying feature selection')
+
+            if self.args['featureFunction'] is PCA:
+                x, xTest = featSelectPCA(x, xTest, self.args['featuresToKeepPercentage'])
+            else:
+                x, dropedCols = getBestFeatures(x, y, self.args['featureFunction'], self.args['featuresToKeepPercentage'])
+                xTest = xTest.drop(dropedCols, axis=1)
+            print('x Train state: {}'.format(x.shape))
+            print('Test state: {}'.format(xTest.shape))
+
+        elif 'correlationThreshold' in self.args.keys() and self.args['correlationThreshold'] != 1:
+            print('Applying corr threshold')
+            x, dropedCols = dropHighCorrFeat(x, max_corr=self.args['correlationThreshold'])
+            xTest = xTest.drop(dropedCols, axis=1)
+            print('x Train state: {}'.format(x.shape))
+            print('Test state: {}'.format(xTest.shape))
+
+        # n = 'correlation threshold: {}'.format(self.args<['correlationThreshold'])
+        # correlation_matrix(x, n, join(self.outputDir, 'Correlation Mattrix.png'), annotTreshold=20)
+
+        print('Treatment done, final x Train state: {}'.format(x.shape))
+        print('Treatment done, final x Test state: {}'.format(xTest.shape))
+
+        extraInfo = {'dropedCols': dropedCols} if dropedCols is not None else {}
+
+        return x, y, xTest, yTest, extraInfo
+
     def _load(self):
         '''
         # For when nan strategy chosen
@@ -310,6 +369,9 @@ class Puppet:
             df = pd.read_csv(self.args['dataset'], header=None, sep=',', decimal='.')
             self.categorical_cols = [i for i in range(10, 54, 1)]
             fixFunction = fixDataSetCov
+        else:
+            print('Unkown dataset')
+            exit()
         return df, fixFunction
 
 
@@ -325,7 +387,9 @@ class Puppet:
             'avg_lift': np.mean(assoc_rules['lift']),
             'avg_confidence': np.mean(assoc_rules['confidence'])
             }
-
+        rules=assoc_rules.copy()
+        rules=rules.sort_values('lift')
+        rules.iloc[-10:].to_csv( self.outputDir + "/top_rules.csv")
         printResultsToJson(results, self.outputDir)
 
     def linkFunctionToArgs(self, funcName, argName):
@@ -333,3 +397,4 @@ class Puppet:
             new_func = self.args[funcName](**self.args[argName])
 
         return new_func
+

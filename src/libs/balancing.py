@@ -93,7 +93,7 @@ def smote(x, y, label='class', numSamplesPerClassType=None):
 
 
 def randomUnderSample(x, y, label='class', numSamplesPerClassType=None):
-    numSamplesPerClassType = {1: 100, 2: 100, 3: 100, 4: 100, 5: 100, 6: 100, 7: 100}   # fixme - hard coded
+    numSamplesPerClassType = {1: 100000, 2: 100000, 3: 100000, 4: 100000, 5: 100000, 6: 100000, 7: 100000}   # fixme - hard coded
     print('- Balancing with random under sampling')
     print('Current x state: ', x.shape)
 

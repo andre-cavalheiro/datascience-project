@@ -26,3 +26,25 @@ elbow
 - sem feat select:
 
 pca view dos melhores lado a lado
+pATTERN MINNINNG INTER GRUPOS ? (CHATO PA CRLH N OBRIGATORIO), FAZER COM TUDO É FDD, FEAT SELECT AJUDA A SELECIONAR VARIAVEIS CERTAS,
+COM UNSUPERVISED NORMALMENTE N TERÍAMOS ISSO.
+
+Comparar qualidade de unsupervised vs classificadores. (Classificadores fuck yeah)
+
+
+=== To ASK ===
+- Mooshak
+
+- (!!!) Feat select, use that little features? (!!!)
+
+- (!!!) Using only 10k for 2nd dataset is enough or not really?
+
+- (!!!) Smote on the less frequent classes and undersample on the others? Is this cool? How much samples should we
+generate at max ?
+
+- (!!!) Um grafico por classifier é necessario ou podemos skippar nB ?
+
+- Ensemble models - explicar abordagem, falta algo?
+
+- DT (entender measures dont change with tree depth,, tried split=5 & split=2 (???) same stuff, => unimportent features)
+

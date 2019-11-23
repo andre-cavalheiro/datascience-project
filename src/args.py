@@ -8,7 +8,9 @@ from src.libs.treatment import *    # fixme !!! should not have src
 from sklearn.cluster import KMeans, AgglomerativeClustering, MiniBatchKMeans, DBSCAN, SpectralClustering, AffinityPropagation, Birch,MeanShift
 from sklearn.mixture import GaussianMixture
 from sklearn.feature_selection import f_classif, chi2, f_regression
-from kmodes.kprototypes import KPrototypes
+#from kmodes.kprototypes import KPrototypes
+from sklearn.decomposition import PCA
+
 
 argListPuppet = [
     {
@@ -51,6 +53,23 @@ argListPuppet = [
             {
             'name': 'metric',
         }
+        ]
+    },
+    {
+        'name': 'miningParams',
+        'type': str,
+        'default': None,
+        'help': 'Possible parameters to be passed to the pattern matcher.',
+        'required': False,
+        'children': [
+            {'name': 'min_sup',},
+            {'name':'min_conf',},
+            {'name':'min_lift',},
+            {'name':'iteratively_decreasing_support',},
+            {'name':'pattern_metric',},
+            {'name':'min_patterns',},
+            {'name':'n',},
+            {'name':'type'}
         ]
     },
     {
@@ -141,7 +160,7 @@ argListPuppet = [
             ('birch', Birch),
             ('GaussianMixture', GaussianMixture),
             ('meanShift', MeanShift),
-            ('kprototypes', KPrototypes),
+            #('kprototypes', KPrototypes),
         ]
     },
     {
@@ -154,6 +173,7 @@ argListPuppet = [
             ('f_classif', f_classif),
             ('chi2', chi2),
             ('f_regression', f_regression),
+            ('PCA', PCA),
         ]
     },
     {

@@ -20,22 +20,22 @@ def cluster_metrics(x, y, y_pred):
     #teoricas
     ad_rand = adjusted_rand_score(y*1, y_pred)
     #labs
+    '''
     adjusted_mutual_info = adjusted_mutual_info_score(y, y_pred)
     mutual_info = mutual_info_score(y, y_pred)
     normalized_mutual_info = normalized_mutual_info_score(y, y_pred)
     homogeneity = homogeneity_score(y, y_pred)  
     completeness= completeness_score(y, y_pred) 
     v_measure = v_measure_score(y, y_pred)
+    '''
 
     #Internal
     silhouette = silhouette_score(x, y_pred)
 
     #metrics.cluster.contingency_matrix(x, y)
-    attrs = ['ad_rand_score', 'adjusted_mutual_info_score', 'mutual_info_score', 'normalized_mutual_info_score', 
-    'homogeneity_score', 'completeness_score', 'v_measure_score', 'silhouette']
+    attrs = ['ad_rand_score', 'silhouette']
 
-    values = [ad_rand, adjusted_mutual_info, mutual_info, 
-    normalized_mutual_info, homogeneity, completeness, v_measure, silhouette]
+    values = [ad_rand, silhouette]
 
     logs = {attrs[it]: val for it, val in enumerate(values)}
     print(logs)

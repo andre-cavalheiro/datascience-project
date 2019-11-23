@@ -1,22 +1,14 @@
 configs:
-   - name: heheh
-     clustering: True
-     variations:
-       - name: numComponents
-         values: [2, 3, 4, 5, 6, 10, 15, 20, 35, 40, 45]
-     priorityLine: ['numComponents']
+   - name: DBSCAN
+     variationsWithin:
+       - name: clusterParams
+         subName: eps
+         values: [3, 4, 5, 5.5, 6]
+     priorityLine: [eps]
      unifyByRecursionLevels: [1]
-     clusterFunction: kmeans
-     dataset: 'src/data/covtype.data'
-     classname: class
-     clusterParams:
-        n_clusters: 4
-     nanStrategy: most_frequent
-     rescaler: normalize
-     correlationThreshold: 1
-     PCA: True
-     patternMining: False
-     numComponents: 
-     plotX: 'numComponents'
-     balancingStrategy: randUndersample 
-
+     clustering: True
+     clusterFunction: dbscan
+     clusterParams: 
+       eps: 0
+     dataset: 'src/data/pd_speech_features.csv'
+     PCA: False

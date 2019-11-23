@@ -7,7 +7,19 @@ nanStrategy: most_frequent
 rescaler: normalize
 correlationThreshold: 0.01
 PCA: False
-patternMining: False
-plotX: 'eps'
+dataSplitMethod: 'kfold'
+kFold: 5
+patternMining: True
+featureFunction: f_classif
+nFeatures: 10
+saveModel: False
+plotX: n_neighbors
+# miningParams:
+#   supportThreshold: 2
+#   supportConfidence: 0.8
+percComponentsPCA: 0.7
+# Functionality
+clusterFunction: dbscan
+clustering: False
 clusterParams:
-  eps: 1
+  n_clusters: 2

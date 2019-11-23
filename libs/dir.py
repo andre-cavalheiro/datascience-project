@@ -6,7 +6,7 @@ from pathlib import Path
 def getWorkDir(jconfig, folderName, extraName='', completedText='', createNew=True):
     if 'outputDir' in jconfig.keys() and jconfig['outputDir'] is not None:
         outputDir = jconfig['outputDir']
-        return makeDir(outputDir, folderName + extraName, createNew=createNew, completedText=completedText)
+        return makeDir(outputDir, '{}{}'.format(folderName, extraName), createNew=createNew, completedText=completedText)
     else:
         return getcwd()      # Current working directory
 
