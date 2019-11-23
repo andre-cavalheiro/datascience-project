@@ -258,7 +258,7 @@ class Puppet:
 
         return df
 
-      def _unsupervisedPreprocessing(self, x, y, xTest = None, yTest = None):
+    def _unsupervisedPreprocessing(self, x, y, xTest = None, yTest = None):
         print('Applying Pre-processing')
 
         # Scaling
