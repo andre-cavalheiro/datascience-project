@@ -269,8 +269,6 @@ def recursivelyBuildConfigs(pipeline, configs, argListPuppet, iterator=0):
 
 def recursivelyRunPuppets(pipeline, iterator, pconfigs, prevDir, jconfig,
                     plotConfig, argListPuppet, argListPlots, seqConf, names, numRan=0):
-
-
     if len(pipeline)-1 == iterator:
         for i, var in enumerate(pipeline[iterator]):
             pconfig = pconfigs[numRan]

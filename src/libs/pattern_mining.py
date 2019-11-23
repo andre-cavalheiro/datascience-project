@@ -20,11 +20,11 @@ def get_frequent_itemsets(dummified_df, minsup = 0.35, iteratively_decreasing_su
         freq_func = fpgrowth
     else:
         freq_func = apriori
+    #iteratively_decreasing_support =False
     if iteratively_decreasing_support:
-        while minsup > 0:
+        while minsup > 0.01:
             minsup = minsup*0.9
             frequent_itemsets = freq_func(dummified_df, min_support=minsup, use_colnames=True)
-            
             if len(frequent_itemsets) >= minpatterns:
                 print("Minimum support:",minsup)
                 break
@@ -34,10 +34,11 @@ def get_frequent_itemsets(dummified_df, minsup = 0.35, iteratively_decreasing_su
     return frequent_itemsets
 
 #metric can also be lift
-def get_association_rules(frequent_itemsets, metric="confidence", min_conf = 0.7, min_lift=1.2):
-    minconf = 0.7
-    rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=minconf)
+def get_association_rules(frequent_itemsets, metric="confidence", min_conf = 0.9, min_lift=1.2):
+    min_metric = min_conf if metric=='confidence' else min_lift
+    #breakpoint()
+    rules = association_rules(frequent_itemsets, metric=metric, min_threshold=min_metric)
     rules["antecedent_len"] = rules["antecedents"].apply(lambda x: len(x))
     pd.set_option('display.max_columns', None)
-    print(rules.sort_values('lift', ascending=False))
+    #print(rules.sort_values('lift', ascending=False))
     return rules

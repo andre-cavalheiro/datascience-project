@@ -17,6 +17,7 @@ from libs.standardPlots import  *
 
 from src.args import *
 
+
 class Puppet:
     def __init__(self, args, debug, outputDir):
         """ I could pass everything from args to self right here to allow better interpretation
@@ -35,6 +36,8 @@ class Puppet:
         x = df.drop(columns=[self.args['classname']])
 
         if 'patternMining' in self.args.keys() and self.args['patternMining']:
+            x, y = self.args['balancingStrategy'](x, y)
+            df = x.join(y)
             self.evaluatePatternMining(self.patternMining(df,x, y))      # Since no optimization is needed no return is necessary
 
         elif 'clustering' in self.args.keys() and self.args['clustering']:
@@ -201,15 +204,18 @@ class Puppet:
                                                                     self.args['miningParams'] != None else default_values
         
         # make flow here based on args (quick stuff)
+        
+        if self.args['featureFunction'] == chi2:
+            x,_ = normalize(x)
+
         columns = SelectKBest(self.args['featureFunction'], k=self.args['nFeatures']).fit(x, y).get_support()
         new_x = x.loc[:,columns]
         #dummi_x = dummify(discretize(new_x, n = self.args['miningParams']['n'], type = self.args['typeMiningParams']))
         dummi_x = dummify(discretize(new_x, n = params['n'], type = params['type']))
-
         freqs = get_frequent_itemsets(dummi_x, minsup = params['min_sup'], \
             iteratively_decreasing_support = params['iteratively_decreasing_support'], minpatterns = params['min_patterns'])
-        assoc_rules = get_association_rules(freqs, metric = params['pattern_metric'], min_lift = params['min_lift'])
-
+        assoc_rules = get_association_rules(freqs, metric = params['pattern_metric'], min_conf = params['min_conf'], min_lift = params['min_lift'])
+        #assoc_rules.to_csv(self.outputDir+"/assoc_rules.csv")
         #lab 6:
         #interesting_rules[(rules['antecedent_len']>=3 and rules['confidence'] >=0.9)][0:10]
         #for r in interesting_rules:
@@ -324,5 +330,7 @@ class Puppet:
             'avg_lift': np.mean(assoc_rules['lift']),
             'avg_confidence': np.mean(assoc_rules['confidence'])
             }
-
+        rules=assoc_rules.copy()
+        rules=rules.sort_values('lift')
+        rules.iloc[-10:].to_csv( self.outputDir + "/top_rules.csv")
         printResultsToJson(results, self.outputDir)

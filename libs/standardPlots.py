@@ -289,11 +289,11 @@ def scaterThemPlots(level, dir, x, ys, logFile, dpi, yLabelsScatter, ymin=None, 
         else:
             ax.scatter(res[ys[0]], res[ys[1]], label=yLabels[i][0])
 
-        '''
+        
         if annotations:
             for i, txt in enumerate(xVal):
                 ax.annotate(txt, (resSorted[ys[0]][i], resSorted[ys[1]][i]))
-        '''
+        
     plt.xlabel(ys[0])
     plt.ylabel(ys[1])
 

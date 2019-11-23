@@ -56,6 +56,23 @@ argListPuppet = [
         ]
     },
     {
+        'name': 'miningParams',
+        'type': str,
+        'default': None,
+        'help': 'Possible parameters to be passed to the pattern matcher.',
+        'required': False,
+        'children': [
+            {'name': 'min_sup',},
+            {'name':'min_conf',},
+            {'name':'min_lift',},
+            {'name':'iteratively_decreasing_support',},
+            {'name':'pattern_metric',},
+            {'name':'min_patterns',},
+            {'name':'n',},
+            {'name':'type'}
+        ]
+    },
+    {
         'name': 'base_estimator',
         'type': str,
         'default': None,

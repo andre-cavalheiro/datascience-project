@@ -4,6 +4,8 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
 from sklearn.feature_selection import SelectKBest, VarianceThreshold, mutual_info_classif
 from sklearn.decomposition import PCA
+from sklearn.feature_selection import SelectKBest, f_classif, chi2
+
 
 def fixDataSetSpeach(df, label='class'):
     '''
@@ -142,6 +144,7 @@ def normalize(x, x_test=None):
     min_max_scaler.fit(x)
     x_norm = min_max_scaler.transform(x)
     x_norm = pd.DataFrame(x_norm, columns=columns)
+    x_test_norm = None
     if x_test is not None:
         x_test_norm = min_max_scaler.transform(x_test)
         x_test_norm = pd.DataFrame(x_test_norm, columns=columns)
@@ -213,13 +216,42 @@ def getTopCorrelations(df, n=None, method='pearson'):
     else:
     	return sol
 
+def isBinary(series, allow_na=False):
+    if allow_na:
+        series.dropna(inplace=True)
+    return sorted(series.unique()) == [0, 1]
+
+
+def selectKBestMixed(x,y,k):
+    binary = SelectKBest(chi2, k).fit(x, y)
+    binary_cols = binary.get_support()
+    binary_ps = binary.pvalues[:k]
+    bc = np.argpartition(binary_ps, -k)[-k:]
+
+    numeric = SelectKBest(f_classif, k).fit(x, y)
+    numeric_cols = numeric.get_support()
+    numeric_ps = numeric.pvalues[:k]
+    nc = np.argpartition(numeric_ps, -k)[-k:]
+    best = []
+    j = 1
+    l = 1
+    for i in range(k):
+        if nc[-j] > bc[-l]:
+            best.append(numeric_cols[nc[-j]])
+            j+=1
+        else:
+            best.append(numeric_cols[nc[-l]])
+            l+=1
+
+
+    
+
 #TODO auto discover non-real cols
 def discretize(df, n = 3, type = "cut"):
     new_df = df.copy()
-    non_real_cols = []
     cut_func = pd.cut if type == "cut" else pd.qcut 
     for col in new_df:
-        if col not in non_real_cols:
+        if not isBinary(new_df[col]):
             new_df[col] = cut_func(new_df[col], n, labels=[str(i) for i in range(n)])
     return new_df
 

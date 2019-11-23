@@ -13,7 +13,7 @@ dataSplitMethod: 'kfold'
 kFold: 5
 patternMining: True
 featureFunction: f_classif
-nFeatures: 50
+nFeatures: 10
 saveModel: False
 plotX: n_neighbors
 # miningParams:
