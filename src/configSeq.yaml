@@ -1,22 +1,22 @@
 configs:
-   - name: Kmeans
-     variationsWithin:
-       - name: clusterParams
-         subName: eps
-         values: [0.05, 0.1, 0.15, 0.2]
-     priorityLine: [eps]
-     unifyByRecursionLevels: [1]
+   - name: heheh
      clustering: True
-     clusterFunction: dbscan
-     clusterParams:
-       eps: 0
-     dataset: 'src/data/pd_speech_features.csv'
+     variations:
+       - name: numComponents
+         values: [2, 3, 4, 5, 6, 10, 15, 20, 35, 40, 45]
+     priorityLine: ['numComponents']
+     unifyByRecursionLevels: [1]
+     clusterFunction: kmeans
+     dataset: 'src/data/covtype.data'
      classname: class
+     clusterParams:
+        n_clusters: 4
      nanStrategy: most_frequent
      rescaler: normalize
-     correlationThreshold: 0.85
-     featureFunction: f_classif
-     featuresToKeepPercentage: 0.01
-     PCA: False
+     correlationThreshold: 1
+     PCA: True
      patternMining: False
-     plotX: 'eps'
+     numComponents: 
+     plotX: 'numComponents'
+     balancingStrategy: randUndersample 
+

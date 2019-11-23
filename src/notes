@@ -14,3 +14,15 @@ features (since our features are naturally separated) !!!!!
 
 - DT prunning needed ?
 
+
+
+Kmeans
+inertia
+- sem feat select: lado a lado silhoute 
+- com feat select:
+DBSCAN
+elbow
+- com feat select: elbow graph, silhouete, n_clusers
+- sem feat select:
+
+pca view dos melhores lado a lado

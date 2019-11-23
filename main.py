@@ -66,6 +66,7 @@ if 'optimizer' in jconfig.keys() and 'optimize' in jconfig.keys() and jconfig['o
             if arg['name'] not in pconfig.keys():
                 pconfig[arg['name']] = None         # todo This may be needed somewhere else
         pconfig = getTrialValuesFromConfig(trial, pconfig, argListPuppet)
+
         printDict(pconfig, "> Trial for: ")
         pconfig = selectFuncAccordingToParams(pconfig, argListPuppet)
 

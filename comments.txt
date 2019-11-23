@@ -22,3 +22,4 @@ Clustering:
 - investigate each classifier with SMOTE already chosen?
 - Comentar pq é que escolhe-mos aplicar feat select depois de balanceamento (havia beneficios nos 2 e bla bla bla).
 - Meter uma regra de pattern minning no relatorio e comentá-la.
+

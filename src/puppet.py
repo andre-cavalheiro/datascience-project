@@ -37,8 +37,9 @@ class Puppet:
         
         elif 'clustering' in self.args.keys() and self.args['clustering']:
             self.cluster_method = self.linkFunctionToArgs('clusterFunction', 'clusterParams')
+            x, y = self.args['balancingStrategy'](x, y)
             x, y, _, _, extraInfo = self._postSplitPreprocessing(x, y) #todo: little hacky but whatever
-            self.evaluate_clustering(*self.do_clustering(df, x, y, extraInfo))
+            return self.evaluate_clustering(*self.do_clustering(df, x, y, {}))
         else:
             self.clf = defineClassifier(self.args['classifier'], self.args)
             # Run classifier
@@ -110,13 +111,19 @@ class Puppet:
     def do_clustering(self, df, x, y, extraInfo):
         print('--- Clustering ---')
         #x = self.args['rescaler'](x)
+        if 'epsP' in self.args.keys() and self.args['epsP']:
+            eps_plot(x, self.outputDir)
+            exit()
+
+
         if self.cluster_method.__class__.__name__ == 'KPrototypes':
             self.cluster_method.fit(x, categorical = self.categorical_cols)
         else:
             self.cluster_method.fit(x)
-
-        eps_plot(x, self.outputDir)    
+        
+       
         y_pred = self.cluster_method.labels_
+
         if self.cluster_method.__class__.__name__ == 'KMeans':
             extraInfo['inertia'] = self.cluster_method.inertia_ 
         
@@ -126,14 +133,17 @@ class Puppet:
 
     def evaluate_clustering(self, x, y, y_pred, extraInfo):
         print('--- Clustering Evaluation ---')
+        
         results = cluster_metrics(x, y, y_pred)
 
         #if self.cluster_method.__class__.__name__ == 'DBSCAN':
         #    eps_plot(x, file = "eps.png")
+
+
         pca_plot(x, y_pred, self.outputDir)    
+        pca_plot_3d(x, y_pred, self.outputDir)    
         results.update(extraInfo)
         printResultsToJson(results, self.outputDir)
-
 
     def trainClf(self, x_train, x_test, y_train, y_test, extraInfo):
 
@@ -246,11 +256,10 @@ class Puppet:
 
         dropedCols = None
         # Feature select
-        if 'PCA' in self.args.keys() and self.args['PCA'] and 'percComponentsPCA' in self.args.keys():
-            numComponents = int(self.args['percComponentsPCA']*x.shape[1])
-            x = (x.
-                 pipe(StandardScaler).   # fixme - it's called before as well, not sure when it should
-                 pipe(applyPCA, numComponents))
+        if 'PCA' in self.args.keys() and self.args['PCA'] and 'numComponents' in self.args.keys():
+           # numComponents = int(self.args['percComponentsPCA']*x.shape[1])
+            x = (x.  # fixme - it's called before as well, not sure when it should
+                 pipe(applyPCA, self.args['numComponents']))
 
         elif 'featureFunction' in self.args.keys() and 'featuresToKeepPercentage' in self.args.keys() \
                 and self.args['featureFunction'] != '':
@@ -260,20 +269,22 @@ class Puppet:
             if xTest != None:
                 xTest = xTest.drop(dropedCols, axis=1)
                 print('Test state: {}'.format(xTest.shape))
+
             print('x Train state: {}'.format(x.shape))
+            print(x)
 
         elif 'correlationThreshold' in self.args.keys() and self.args['correlationThreshold'] != 1:
             print('Applying corr threshold')
             x, dropedCols = dropHighCorrFeat(x, max_corr=self.args['correlationThreshold'])
-            
+            print(x.columns)
             if xTest != None:
                 xTest = xTest.drop(dropedCols, axis=1)
                 print('Test state: {}'.format(xTest.shape))
 
             print('x Train state: {}'.format(x.shape))
 
-        # n = 'correlation threshold: {}'.format(self.args<['correlationThreshold'])
-        # correlation_matrix(x, n, join(self.outputDir, 'Correlation Mattrix.png'), annotTreshold=20)
+     #   n = 'correlation threshold: {}'.format(self.args['correlationThreshold'])
+      #  correlation_matrix(x, n, join(self.outputDir, 'Correlation Mattrix.png'), annotTreshold=20)
 
         print('Treatment done, final x Train state: {}'.format(x.shape))
         if xTest != None:
@@ -320,7 +331,5 @@ class Puppet:
     def linkFunctionToArgs(self, funcName, argName):
         if argName in self.args.keys() and self.args[argName] is not None:
             new_func = self.args[funcName](**self.args[argName])
-        else:
-            new_func = self.args[funcName]()
 
         return new_func

@@ -101,7 +101,7 @@ argListPuppet = [
         'default': None,
         'help': 'Covariance threshold value to be used.',
         'required': True,
-        'optimize': True,
+        'optimize': False,
         'optimizeUniform': [0.50, 0.99]
     },
 {
@@ -163,5 +163,17 @@ argListPuppet = [
         'help': 'N features to select',
         'required': False,
     },
+    {
+       'name': 'clusterParams',
+        'type': str,
+        'default': None,
+        'help': 'Possible parameters to be passed to the classifier.',
+        'required': False,
+       'children': [{              # Example params for knn
+            'name': 'eps',
+            'optimize': True,
+            'optimizeUniform': [0.0,0.1]
+        }]
+    }
 ]
 

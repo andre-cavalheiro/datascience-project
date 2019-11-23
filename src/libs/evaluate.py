@@ -18,7 +18,7 @@ def cluster_metrics(x, y, y_pred):
     #print("Sum of squared distances:",kmeans_model.inertia_)
     #External
     #teoricas
-    ad_rand = adjusted_rand_score(y, y_pred)
+    ad_rand = adjusted_rand_score(y*1, y_pred)
     #labs
     adjusted_mutual_info = adjusted_mutual_info_score(y, y_pred)
     mutual_info = mutual_info_score(y, y_pred)

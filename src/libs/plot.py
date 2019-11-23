@@ -26,11 +26,10 @@ def eps_plot(data, dir, filename = "eps", title=None, show = False):
 
 def correlation_matrix(data, name, file = None, annotTreshold = 20):
 	annot = False if len(data.columns) > 20 else True
-
 	fig = plt.figure(figsize=[25, 25])
 	corr_mtx = data.corr(method='spearman')
-	sns.heatmap(corr_mtx, xticklabels=corr_mtx.columns, yticklabels=corr_mtx.columns, annot=annot, cmap='Blues')
-	plt.title('Correlation analysis of {}'.format(name))
+	sns.heatmap(corr_mtx, xticklabels=False, yticklabels=False, annot=None, cmap='Blues', vmin=-1,vmax=1)
+	#plt.title('Correlation analysis of {}'.format(name))
 	
 	if(file == None):
 		plt.show()
@@ -112,6 +111,38 @@ def pca_plot(data, predict, dir, filename = "pca", title=None, show = False):
 	for target in targets:
 		indicesToKeep = finalDf['class'] == target
 		ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1'], finalDf.loc[indicesToKeep, 'principal component 2'])
+
+	ax.legend(targets)
+	ax.grid()
+
+	if(show):
+		plt.show()
+	else:
+		plt.savefig('{}/{}.png'.format(dir, filename))
+
+
+def pca_plot_3d(data, predict, dir, filename = "pca3d", title=None, show = False):
+	if len(data.columns) < 3:
+		return 
+
+	pca = PCA(n_components=3)
+	principalComponents = pca.fit_transform(data)
+
+	principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2', 'principal component 3'])
+	finalDf = pd.concat([principalDf, pd.DataFrame(predict)], axis=1)
+	finalDf.rename(columns={0: 'class'}, inplace=True)
+
+	fig = plt.figure(figsize = (8,8))
+	ax = fig.add_subplot(1,1,1,projection='3d') 
+	ax.set_xlabel('Principal Component 1', fontsize = 15)
+	ax.set_ylabel('Principal Component 2', fontsize = 15)
+	ax.set_zlabel('Principal Component 3', fontsize = 15)
+	ax.set_title(title, fontsize = 20)
+
+	targets = np.arange(len(np.unique(predict)))
+	for target in targets:
+		indicesToKeep = finalDf['class'] == target
+		ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1'], finalDf.loc[indicesToKeep, 'principal component 2'] , zs= finalDf.loc[indicesToKeep, 'principal component 3'] , s = 50)
 
 	ax.legend(targets)
 	ax.grid()
